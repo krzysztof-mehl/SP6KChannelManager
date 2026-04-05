@@ -1,0 +1,33 @@
+<vm:MainViewModel xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:vm="clr-namespace:SP6KChannelManager.ViewModels"
+                  xmlns:model="clr-namespace:SP6KChannelManager.Models">
+    <vm:MainViewModel.CurrentProject>
+        <model:Project WindowHeight="600" WindowWidth="1100">
+            <model:Project.GroupCollection>
+                <model:GroupCollection>
+                    <model:GroupCollection.SelectedGroup>
+                        <model:Group Name="grupa 1">
+                            <model:Group.SelectedChannel>
+                                <model:Channel Name="kanał 1" />
+                            </model:Group.SelectedChannel>
+                            <model:Group.EditedChannel>
+                                <model:Channel Name="kanał 1 - edycja" />
+                            </model:Group.EditedChannel>
+                            <model:Group.Channels>
+                                <model:Channel Name="kanał 1" />
+                                <model:Channel Name="kanał 2" />
+                                <model:Channel Name="kanał 3" />
+                            </model:Group.Channels>
+                        </model:Group>
+                    </model:GroupCollection.SelectedGroup>
+                    <model:GroupCollection.Groups>
+                        <model:Group Name="grupa 1" />
+                        <model:Group Name="grupa 2" />
+                        <model:Group Name="grupa 3" />
+                    </model:GroupCollection.Groups>
+                </model:GroupCollection>
+            </model:Project.GroupCollection>
+        </model:Project>
+    </vm:MainViewModel.CurrentProject>
+</vm:MainViewModel>
