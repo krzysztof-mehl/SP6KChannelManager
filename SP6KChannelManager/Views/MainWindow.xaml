@@ -6,12 +6,22 @@
         xmlns:local="clr-namespace:SP6KChannelManager.ViewModels"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="800"
-        d:DataContext="{d:DesignData Source=../DesignData/MainWindowDesignData.xaml}"
-        Title="{Binding WindowTitle}" Height="{Binding CurrentProject.WindowHeight}" Width="{Binding CurrentProject.WindowWidth}">
+        Title="{Binding WindowTitle}" Height="{Binding WindowHeight}" Width="{Binding WindowWidth}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
-    
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenProjectCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveProjectCommand}"/>
+        <KeyBinding Modifiers="Ctrl+Shift" Key="S" Command="{Binding SaveAsProjectCommand}"/>
+        <KeyBinding Modifiers="Ctrl+Shift" Key="N" Command="{Binding AddGroupCommand}"/>
+        <KeyBinding Modifiers="Ctrl+Shift" Key="U" Command="{Binding MoveUpGroupCommand}"/>
+        <KeyBinding Modifiers="Ctrl+Shift" Key="D" Command="{Binding MoveDownGroupCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding AddChannelCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="U" Command="{Binding MoveUpChannelCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding MoveDownChannelCommand}"/>
+    </Window.InputBindings>
+
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Project">
@@ -54,13 +64,13 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ChannelsCount, StringFormat={}{0} channel(s) in}"/>
-                    <TextBlock Text="{Binding CurrentProject.GroupCollection.Groups.Count, StringFormat={} {0} group(s)}"/>
+                    <TextBlock Text="{Binding Groups.Count, StringFormat={} {0} group(s)}"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding CurrentProject.GroupCollection.SelectedGroup.Channels.Count, FallbackValue='No group selected', StringFormat={}{0} channel(s) in group}"/>
+                    <TextBlock Text="{Binding SelectedGroup.Channels.Count, FallbackValue='No group selected', StringFormat={}{0} channel(s) in group}"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
@@ -70,6 +80,16 @@
         </StatusBar>
 
         <GroupBox DockPanel.Dock="Left" Width="200" Header="Groups" Margin="5">
+            <GroupBox.Style>
+                <Style TargetType="GroupBox">
+                    <Setter Property="IsEnabled" Value="True"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </GroupBox.Style>
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top">
                     <DockPanel LastChildFill="False">
@@ -85,11 +105,11 @@
                         </StackPanel>
                     </DockPanel>
                 </StackPanel>
-                <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.GroupCollection.Groups}" SelectedItem="{Binding CurrentProject.GroupCollection.SelectedGroup}"/>
+                <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}"/>
             </DockPanel>
         </GroupBox>
 
-        <ScrollViewer DockPanel.Dock="Right" Width="250" Margin="5" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer DockPanel.Dock="Right" Width="250" Margin="5" VerticalScrollBarVisibility="Auto" Visibility="{Binding SelectedGroup.IsChannelSelected, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
             <GroupBox Header="Channel details">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -131,7 +151,7 @@
                     <Separator Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"/>
 
                     <Label Grid.Row="4" Grid.Column="0" Content="Name:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Binding CurrentProject.GroupCollection.SelectedGroup.EditedChannel.Name}"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center"/>
 
                     <Label Grid.Row="5" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
                     <TextBox Grid.Row="5" Grid.Column="1" VerticalAlignment="Center"/>
@@ -271,14 +291,46 @@
                     <Separator Grid.Row="16" Grid.Column="0" Grid.ColumnSpan="2"/>
 
                     <DockPanel Grid.Row="17" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
-                        <Button DockPanel.Dock="Left" Content="✓ Save" Width="70" Command="{Binding SaveChannelChangesCommand}"/>
-                        <Button DockPanel.Dock="Right" Content="✕ Cancel" Width="70" Command="{Binding DiscardChannelChangesCommand}"/>
+                        <Button DockPanel.Dock="Left" Content="✓ Save" Width="70" Command="{Binding SaveChannelChangesCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button DockPanel.Dock="Right" Width="70" Command="{Binding DiscardChannelChangesCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Content" Value="✕ Close"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                                            <Setter Property="Content" Value="✕ Cancel"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </DockPanel>
                 </Grid>
             </GroupBox>
         </ScrollViewer>
 
         <GroupBox DockPanel.Dock="Left" Header="Channels" Margin="5">
+            <GroupBox.Style>
+                <Style TargetType="GroupBox">
+                    <Setter Property="IsEnabled" Value="True"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </GroupBox.Style>
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top">
                     <DockPanel LastChildFill="False">
@@ -296,7 +348,7 @@
                 </StackPanel>
 
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                    <ListView Margin="5" SelectionMode="Single" ItemsSource="{Binding CurrentProject.GroupCollection.SelectedGroup.Channels}" SelectedItem="{Binding CurrentProject.GroupCollection.SelectedGroup.SelectedChannel}">
+                    <ListView Margin="5" SelectionMode="Single" ItemsSource="{Binding SelectedGroup.Channels}" SelectedItem="{Binding SelectedGroup.SelectedChannel}">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>

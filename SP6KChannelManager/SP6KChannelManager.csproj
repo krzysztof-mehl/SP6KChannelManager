@@ -22,8 +22,4 @@
 		<DebugType>none</DebugType>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Folder Include="Commands\" />
-	</ItemGroup>
 </Project>

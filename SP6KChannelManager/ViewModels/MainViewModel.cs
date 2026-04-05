@@ -1,40 +1,27 @@
-﻿using Microsoft.VisualBasic;
-using SP6KChannelManager.Commands;
-using SP6KChannelManager.Helpers;
+﻿using SP6KChannelManager.Commands;
 using SP6KChannelManager.Models;
-using SP6KChannelManager.Services;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls.Primitives;
+using System.Collections.ObjectModel;
 
 namespace SP6KChannelManager.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        public Project CurrentProject { get; set => SetProperty(ref field, value); } = new();
+        internal ErrorHandler ErrorHandler { get; set; } = new();
 
-        public static string WindowTitle
-        {
-            get
-            {
-                string product = AssemblyHelper.Product;
-                string version = AssemblyHelper.InformationalVersion;
-                return $"{product} v{version}";
-            }
-        }
+        public string WindowTitle { get; set => SetProperty(ref field, value); } = "";
+        public int WindowHeight { get; set => SetProperty(ref field, value); } = 600;
+        public int WindowWidth { get; set => SetProperty(ref field, value); } = 1100;
+        public string Status { get; set => SetProperty(ref field, value); } = "Not initialized";
 
-        public string Status { get; set; } = "";
-
-        public bool IsGroupSelected => CurrentProject.GroupCollection.SelectedGroup != null;
-        public bool CanMoveUpGroup => CurrentProject.GroupCollection.SelectedGroup != null && CurrentProject.GroupCollection.Groups.IndexOf(CurrentProject.GroupCollection.SelectedGroup) > 0;
-        public bool CanMoveDownGroup => CurrentProject.GroupCollection.SelectedGroup != null && CurrentProject.GroupCollection.Groups.IndexOf(CurrentProject.GroupCollection.SelectedGroup) < CurrentProject.GroupCollection.Groups.Count - 1;
-
-        public int ChannelsCount => CurrentProject.GroupCollection.ChannelsCount;
-        public bool IsChannelSelected => CurrentProject.GroupCollection.SelectedGroup?.SelectedChannel != null;
-        public bool CanMoveUpChannel => CurrentProject.GroupCollection.SelectedGroup?.SelectedChannel != null && CurrentProject.GroupCollection.SelectedGroup.Channels.IndexOf(CurrentProject.GroupCollection.SelectedGroup.SelectedChannel) > 0;
-        public bool CanMoveDownChannel => CurrentProject.GroupCollection.SelectedGroup?.SelectedChannel != null && CurrentProject.GroupCollection.SelectedGroup.Channels.IndexOf(CurrentProject.GroupCollection.SelectedGroup.SelectedChannel) < CurrentProject.GroupCollection.SelectedGroup.Channels.Count - 1;
-
-
+        public ObservableCollection<Group> Groups { get; set => SetProperty(ref field, value); } = [];
+        public Group? SelectedGroup { get; set { IsGroupSelected = value != null; SetProperty(ref field, value); } } = null;
+        public bool IsGroupSelected { get; private set => SetProperty(ref field, value); } = false;
+        public bool CanMoveUpGroup => IsGroupSelected && Groups.IndexOf(SelectedGroup!) > 0;
+        public bool CanMoveDownGroup => IsGroupSelected && Groups.IndexOf(SelectedGroup!) < Groups.Count - 1;
+        public int ChannelsCount => Groups.Sum(group => group.Channels.Count);
+        public bool CanMoveUpChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) > 0;
+        public bool CanMoveDownChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) < SelectedGroup.Channels.Count - 1;
+        public bool IsEditingChannel { get; set => SetProperty(ref field, value); } = false;
 
 
         public RelayCommand NewProjectCommand { get; }
@@ -60,223 +47,181 @@ namespace SP6KChannelManager.ViewModels
         public RelayCommand SaveChannelChangesCommand { get; }
         public RelayCommand DiscardChannelChangesCommand { get; }
 
-
         public MainViewModel()
         {
-            NewProjectCommand = new(NewProject);
-            OpenProjectCommand = new(OpenProject);
-            SaveProjectCommand = new(SaveProject);
-            SaveAsProjectCommand = new(SaveAsProject);
-            AddGroupCommand = new(AddGroup);
-            EditGroupCommand = new(EditGroup, () => IsGroupSelected);
-            RemoveGroupCommand = new(RemoveGroup, () => IsGroupSelected);
-            CloneGroupCommand = new(CloneGroup, () => IsGroupSelected);
-            SortGroupByNameCommand = new(SortGroupByName, () => IsGroupSelected);
-            MoveUpGroupCommand = new(MoveUpGroup, () => CanMoveUpGroup);
-            MoveDownGroupCommand = new(MoveDownGroup, () => CanMoveDownGroup);
-            AddChannelCommand = new(AddChannel, () => IsGroupSelected);
-            EditChannelCommand = new(EditChannel, () => IsChannelSelected);
-            RemoveChannelCommand = new(RemoveChannel, () => IsChannelSelected);
-            CloneChannelCommand = new(CloneChannel, () => IsChannelSelected);
-            SortChannelByNameCommand = new(SortChannelByName, () => IsChannelSelected);
-            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => IsChannelSelected);
-            MoveUpChannelCommand = new(MoveUpChannel, () => CanMoveUpChannel);
-            MoveDownChannelCommand = new(MoveDownChannel, () => CanMoveDownChannel);
+            NewProjectCommand = new(NewProject, () => !IsEditingChannel);
+            OpenProjectCommand = new(OpenProject, () => !IsEditingChannel);
+            SaveProjectCommand = new(SaveProject, () => !IsEditingChannel);
+            SaveAsProjectCommand = new(SaveAsProject, () => !IsEditingChannel);
+            AddGroupCommand = new(AddGroup, () => !IsEditingChannel);
+            EditGroupCommand = new(EditGroup, () => !IsEditingChannel && IsGroupSelected);
+            RemoveGroupCommand = new(RemoveGroup, () => !IsEditingChannel && IsGroupSelected);
+            CloneGroupCommand = new(CloneGroup, () => !IsEditingChannel && IsGroupSelected);
+            SortGroupByNameCommand = new(SortGroupByName, () => !IsEditingChannel);
+            MoveUpGroupCommand = new(MoveUpGroup, () => !IsEditingChannel && CanMoveUpGroup);
+            MoveDownGroupCommand = new(MoveDownGroup, () => !IsEditingChannel && CanMoveDownGroup);
+            AddChannelCommand = new(AddChannel, () => !IsEditingChannel && IsGroupSelected);
+            EditChannelCommand = new(EditChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            RemoveChannelCommand = new(RemoveChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            CloneChannelCommand = new(CloneChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            SortChannelByNameCommand = new(SortChannelByName, () => !IsEditingChannel);
+            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => !IsEditingChannel);
+            MoveUpChannelCommand = new(MoveUpChannel, () => !IsEditingChannel && CanMoveUpChannel);
+            MoveDownChannelCommand = new(MoveDownChannel, () => !IsEditingChannel && CanMoveDownChannel);
             ShowAboutCommand = new(ShowAbout);
-            SaveChannelChangesCommand = new(SaveChannelChanges);
+            SaveChannelChangesCommand = new(SaveChannelChanges, () => IsEditingChannel);
             DiscardChannelChangesCommand = new(DiscardChannelChanges);
         }
 
+
         private void NewProject()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void OpenProject()
         {
-            ErrorHandlerService.NotImplemented();
-
-            OnPropertyChanged(nameof(ChannelsCount));
+            ErrorHandler.NotImplemented();
         }
 
         private void SaveProject()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void SaveAsProject()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void AddGroup()
         {
-            string name = Interaction.InputBox("Enter group name:", "Add Group", "New Group");
-
-            if (GroupCollectionService.AddGroupService(CurrentProject, name))
-            {
-                CurrentProject.GroupCollection.SelectedGroup = CurrentProject.GroupCollection.Groups.Last();
-
-                OnPropertyChanged(nameof(CanMoveUpGroup));
-                OnPropertyChanged(nameof(CanMoveDownGroup));
-            }
-            else
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            ErrorHandler.NotImplemented();
+            Groups.Add(new Group { Name = $"Group {Groups.Count + 1}" });
         }
 
         private void EditGroup()
         {
-            string name = Interaction.InputBox("Enter new group name:", "Edit Group", CurrentProject.GroupCollection.SelectedGroup!.Name);
-
-            if (!GroupCollectionService.EditGroupService(CurrentProject,name))
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            ErrorHandler.NotImplemented();
         }
 
         private void RemoveGroup()
         {
-            if (MessageBox.Show($"Are you sure you want to remove group '{CurrentProject.GroupCollection.SelectedGroup!.Name}'?", "Remove Group", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-            {
-                GroupCollectionService.RemoveGroupService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            Groups.Remove(SelectedGroup!);
 
-                OnPropertyChanged(nameof(CanMoveUpGroup));
-                OnPropertyChanged(nameof(CanMoveDownGroup));
-                OnPropertyChanged(nameof(ChannelsCount));
-            }
+            OnPropertyChanged(nameof(ChannelsCount));
         }
 
         private void CloneGroup()
         {
-            string name = Interaction.InputBox("Enter group name:", "Clone Group", $"{CurrentProject.GroupCollection.SelectedGroup!.Name} Copy");
-
-            if (GroupCollectionService.CloneGroupService(CurrentProject, name))
-            {
-                OnPropertyChanged(nameof(CanMoveUpGroup));
-                OnPropertyChanged(nameof(CanMoveDownGroup));
-                OnPropertyChanged(nameof(ChannelsCount));
-            }
-            else
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            ErrorHandler.NotImplemented();
         }
 
         private void SortGroupByName()
         {
-            ErrorHandlerService.NotImplemented();
-
-            OnPropertyChanged(nameof(CanMoveUpGroup));
-            OnPropertyChanged(nameof(CanMoveDownGroup));
+            ErrorHandler.NotImplemented();
         }
 
         private void MoveUpGroup()
         {
-            GroupCollectionService.MoveUpGroupService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            int index = Groups.IndexOf(SelectedGroup!);
 
-            OnPropertyChanged(nameof(CanMoveUpGroup));
-            OnPropertyChanged(nameof(CanMoveDownGroup));
+            Groups.Move(index, index - 1);
         }
 
         private void MoveDownGroup()
         {
-            GroupCollectionService.MoveDownGroupService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            int index = Groups.IndexOf(SelectedGroup!);
 
-            OnPropertyChanged(nameof(CanMoveUpGroup));
-            OnPropertyChanged(nameof(CanMoveDownGroup));
+            Groups.Move(index, index + 1);
         }
 
         private void AddChannel()
         {
-            string name = Interaction.InputBox("Enter channel name:", "Add Channel", "New Channel");
+            ErrorHandler.NotImplemented();
+            SelectedGroup?.Channels.Add(new Channel { Name = $"Channel {SelectedGroup.Channels.Count + 1}" });
 
-            if (GroupCollectionService.AddChannelService(CurrentProject, name))
-            {
-                CurrentProject.GroupCollection.SelectedGroup!.SelectedChannel = CurrentProject.GroupCollection.SelectedGroup.Channels.Last();
-
-                OnPropertyChanged(nameof(ChannelsCount));
-            }
-            else
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            OnPropertyChanged(nameof(ChannelsCount));
         }
 
         private void EditChannel()
         {
-            string name = Interaction.InputBox("Enter new channel name:", "Edit Channel", CurrentProject.GroupCollection.SelectedGroup!.SelectedChannel!.Name);
-
-            if (!GroupCollectionService.EditChannelService(CurrentProject, name))
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            ErrorHandler.NotImplemented();
+            IsEditingChannel = true;
         }
 
         private void RemoveChannel()
         {
-            if (MessageBox.Show($"Are you sure you want to remove channel '{CurrentProject.GroupCollection.SelectedGroup!.SelectedChannel!.Name}'?", "Remove Channel", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-            {
-                GroupCollectionService.RemoveChannelService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
-                OnPropertyChanged(nameof(ChannelsCount));
+            SelectedGroup!.Channels.Remove(SelectedGroup.SelectedChannel!);
+
+            if (SelectedGroup.Channels.Count > 0)
+            {
+                if (index == SelectedGroup.Channels.Count)
+                {
+                    SelectedGroup!.SelectedChannel = SelectedGroup.Channels.Last();
+                }
+                else
+                {
+                    SelectedGroup!.SelectedChannel = SelectedGroup.Channels[index];
+                }
             }
+
+            OnPropertyChanged(nameof(ChannelsCount));
         }
 
         private void CloneChannel()
         {
-            string name = Interaction.InputBox("Enter channel name:", "Clone Channel", $"{CurrentProject.GroupCollection.SelectedGroup!.SelectedChannel!.Name} Copy");
-
-            if (GroupCollectionService.CloneChannelService(CurrentProject, name))
-            {
-                OnPropertyChanged(nameof(ChannelsCount));
-            }
-            else
-            {
-                ErrorHandlerService.ShowErrors(CurrentProject);
-            }
+            ErrorHandler.NotImplemented();
         }
 
         private void SortChannelByName()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void SortChannelByFrequency()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void MoveUpChannel()
         {
-            GroupCollectionService.MoveUpChannelService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
-            OnPropertyChanged(nameof(CanMoveUpChannel));
-            OnPropertyChanged(nameof(CanMoveDownChannel));
+            SelectedGroup.Channels.Move(index, index - 1);
         }
 
         private void MoveDownChannel()
         {
-            GroupCollectionService.MoveDownChannelService(CurrentProject);
+            ErrorHandler.NotImplemented();
+            int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
-            OnPropertyChanged(nameof(CanMoveUpChannel));
-            OnPropertyChanged(nameof(CanMoveDownChannel));
+            SelectedGroup.Channels.Move(index, index + 1);
         }
 
         private void ShowAbout()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
         }
 
         private void SaveChannelChanges()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
+            IsEditingChannel = false;
         }
 
         private void DiscardChannelChanges()
         {
-            ErrorHandlerService.NotImplemented();
+            ErrorHandler.NotImplemented();
+            SelectedGroup!.SelectedChannel = null;
+            IsEditingChannel = false;
         }
     }
 }
