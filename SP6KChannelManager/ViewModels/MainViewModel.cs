@@ -1,6 +1,7 @@
 ﻿using SP6KChannelManager.Commands;
 using SP6KChannelManager.Models;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace SP6KChannelManager.ViewModels
 {
@@ -22,7 +23,13 @@ namespace SP6KChannelManager.ViewModels
         public bool CanMoveUpChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) > 0;
         public bool CanMoveDownChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) < SelectedGroup.Channels.Count - 1;
         public bool IsEditingChannel { get; set => SetProperty(ref field, value); } = false;
+        public int ToneIndex { get; set => SetProperty(ref field, value); } = 0;
+        public static List<string> Bandwidths => ["Narrow", "Wide"];
+        public static List<string> Tones => ["Off", "Tone", "TSQL"];
+        public static List<decimal> CtcssTones => [67.0m, 69.3m, 71.9m, 74.4m, 77.0m, 79.7m, 82.5m, 85.4m, 88.5m, 91.5m, 94.8m, 97.4m, 100.0m, 103.5m, 107.2m, 110.9m, 114.8m, 118.8m, 123.0m, 127.3m, 131.8m, 136.5m, 141.3m, 146.2m, 151.4m, 156.7m, 159.8m, 162.2m, 165.5m, 167.9m, 171.3m, 173.8m, 177.3m, 179.9m, 183.5m, 186.2m, 189.9m, 192.8m, 196.6m, 199.5m, 203.5m, 206.5m, 210.7m, 218.1m, 225.7m, 229.1m, 233.6m, 241.8m, 250.3m, 254.1m];
 
+
+        
 
         public RelayCommand NewProjectCommand { get; }
         public RelayCommand OpenProjectCommand { get; }
@@ -53,21 +60,24 @@ namespace SP6KChannelManager.ViewModels
             OpenProjectCommand = new(OpenProject, () => !IsEditingChannel);
             SaveProjectCommand = new(SaveProject, () => !IsEditingChannel);
             SaveAsProjectCommand = new(SaveAsProject, () => !IsEditingChannel);
+
             AddGroupCommand = new(AddGroup, () => !IsEditingChannel);
             EditGroupCommand = new(EditGroup, () => !IsEditingChannel && IsGroupSelected);
             RemoveGroupCommand = new(RemoveGroup, () => !IsEditingChannel && IsGroupSelected);
             CloneGroupCommand = new(CloneGroup, () => !IsEditingChannel && IsGroupSelected);
-            SortGroupByNameCommand = new(SortGroupByName, () => !IsEditingChannel);
+            SortGroupByNameCommand = new(SortGroupByName, () => !IsEditingChannel && (Groups.Count > 1));
             MoveUpGroupCommand = new(MoveUpGroup, () => !IsEditingChannel && CanMoveUpGroup);
             MoveDownGroupCommand = new(MoveDownGroup, () => !IsEditingChannel && CanMoveDownGroup);
+
             AddChannelCommand = new(AddChannel, () => !IsEditingChannel && IsGroupSelected);
             EditChannelCommand = new(EditChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
             RemoveChannelCommand = new(RemoveChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
             CloneChannelCommand = new(CloneChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
-            SortChannelByNameCommand = new(SortChannelByName, () => !IsEditingChannel);
-            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => !IsEditingChannel);
+            SortChannelByNameCommand = new(SortChannelByName, () => !IsEditingChannel && (SelectedGroup?.Channels.Count > 1));
+            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => !IsEditingChannel && (SelectedGroup?.Channels.Count > 1));
             MoveUpChannelCommand = new(MoveUpChannel, () => !IsEditingChannel && CanMoveUpChannel);
             MoveDownChannelCommand = new(MoveDownChannel, () => !IsEditingChannel && CanMoveDownChannel);
+
             ShowAboutCommand = new(ShowAbout);
             SaveChannelChangesCommand = new(SaveChannelChanges, () => IsEditingChannel);
             DiscardChannelChangesCommand = new(DiscardChannelChanges);
@@ -98,6 +108,7 @@ namespace SP6KChannelManager.ViewModels
         {
             ErrorHandler.NotImplemented();
             Groups.Add(new Group { Name = $"Group {Groups.Count + 1}" });
+            SelectedGroup = Groups.Last();
         }
 
         private void EditGroup()
