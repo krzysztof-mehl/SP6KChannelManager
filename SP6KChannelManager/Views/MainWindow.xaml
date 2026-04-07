@@ -136,7 +136,7 @@
             </DockPanel>
         </GroupBox>
 
-        <ScrollViewer DockPanel.Dock="Right" Width="250" Margin="5" VerticalScrollBarVisibility="Auto" Visibility="{Binding SelectedGroup.IsChannelSelected, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+        <ScrollViewer DockPanel.Dock="Right" Width="250" Margin="5" VerticalScrollBarVisibility="Auto" d:Visibility="Visible" Visibility="{Binding SelectedGroup.IsChannelSelected, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
             <GroupBox Header="Channel details">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -158,31 +158,32 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="0" Content="Name:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                     <Label Grid.Row="1" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                     <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="2" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center"  Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Frequency, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Label Grid.Row="3" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="3" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Offset, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
 
                     <GroupBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Location" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Location" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseLocation}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -197,16 +198,16 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Row="0" Grid.Column="0" Content="QTH:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Qth}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="1" Grid.Column="0" Content="Locator:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Locator}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="2" Grid.Column="0" Content="Latitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Latitude, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="3" Grid.Column="0" Content="Longitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Longitude, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                         </Grid>
                     </GroupBox>
 
@@ -214,19 +215,19 @@
 
                     <GroupBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode AM (Airband)" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode AM (Airband)" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseModeAm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                     </GroupBox>
 
                     <GroupBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode C4FM (Fusion/YSF)" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode C4FM (Fusion/YSF)" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseModeC4Fm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                     </GroupBox>
 
                     <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode DMR" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode DMR" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseModeDmr}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -239,16 +240,16 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Row="0" Grid.Column="0" Content="Timeslot:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Timeslots}" SelectedValue="{Binding SelectedGroup.DisplayedChannel.Timeslot}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="1" Grid.Column="0" Content="Color Code:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Ccs}" SelectedValue="{Binding SelectedGroup.DisplayedChannel.Cc}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
                         </Grid>
                     </GroupBox>
 
                     <GroupBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode DV (D-STAR)" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode DV (D-STAR)" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseModeDv}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -262,19 +263,19 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Row="0" Grid.Column="0" Content="UR:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Ur}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="1" Grid.Column="0" Content="RPT1:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Rpt1}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="2" Grid.Column="0" Content="RPT2:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Rpt2}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                         </Grid>
                     </GroupBox>
 
                     <GroupBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode FM" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.DisplayedChannel.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -288,16 +289,19 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="0" ItemsSource="{Binding Bandwidths}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Bandwidths}" SelectedValue="{Binding SelectedGroup.DisplayedChannel.Bandwidth}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
                                 <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" SelectedValue="{Binding SelectedGroup.DisplayedChannel.Tone}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
                                 <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
                                 <Label.Style>
                                     <Style TargetType="Label">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
                                             <DataTrigger Binding="{Binding ToneIndex}" Value="0">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
@@ -305,12 +309,15 @@
                                     </Style>
                                 </Label.Style>
                             </Label>
-                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="0" ItemsSource="{Binding CtcssTones}">
+                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.DisplayedChannel.CtcssTone}">
                                 <ComboBox.Style>
                                     <Style TargetType="ComboBox">
                                         <Setter Property="Visibility" Value="Visible"/>
                                         <Setter Property="IsEnabled" Value="False"/>
                                         <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
                                             <DataTrigger Binding="{Binding ToneIndex}" Value="0">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
@@ -326,12 +333,20 @@
 
                     <Separator Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2"/>
 
-                    <DockPanel Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
-                        <Button DockPanel.Dock="Left" Content="✓ Save" Width="70" Command="{Binding SaveChannelChangesCommand}">
+                    <GroupBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Header="Comment">
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.DisplayedChannel.Comment}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    </GroupBox>
+
+                    <DockPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
+                        <Button DockPanel.Dock="Left" Width="70" Command="{Binding SaveChannelChangesCommand}">
                             <Button.Style>
                                 <Style TargetType="Button">
+                                    <Setter Property="Content" Value="✓ Save"/>
                                     <Setter Property="Visibility" Value="Visible"/>
                                     <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAddingChannel}" Value="True">
+                                            <Setter Property="Content" Value="➕ Add"/>
+                                        </DataTrigger>
                                         <DataTrigger Binding="{Binding IsEditingChannel}" Value="False">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>

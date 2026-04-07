@@ -4,9 +4,68 @@ namespace SP6KChannelManager.Models
 {
     public class Channel : BaseViewModel
     {
-        public static readonly decimal[] CtcssTones = [67.0m, 69.3m, 71.9m, 74.4m, 77.0m, 79.7m, 82.5m, 85.4m, 88.5m, 91.5m, 94.8m, 97.4m, 100.0m, 103.5m, 107.2m, 110.9m, 114.8m, 118.8m, 123.0m, 127.3m, 131.8m, 136.5m, 141.3m, 146.2m, 151.4m, 156.7m, 159.8m, 162.2m, 165.5m, 167.9m, 171.3m, 173.8m, 177.3m, 179.9m, 183.5m, 186.2m, 189.9m, 192.8m, 196.6m, 199.5m, 203.5m, 206.5m, 210.7m, 218.1m, 225.7m, 229.1m, 233.6m, 241.8m, 250.3m, 254.1m];
-
         public string Name { get; set => SetProperty(ref field, value); } = "";
         public string Callsign { get; set => SetProperty(ref field, value); } = "";
+        public decimal? Frequency { get; set => SetProperty(ref field, value); } = null;
+        public decimal? Offset { get; set => SetProperty(ref field, value); } = null;
+        public string Comment { get; set => SetProperty(ref field, value); } = "";
+
+        public bool UseLocation { get; set => SetProperty(ref field, value); } = false;
+        public string Qth { get; set => SetProperty(ref field, value); } = "";
+        public string Locator { get; set => SetProperty(ref field, value); } = "";
+        public decimal? Latitude { get; set => SetProperty(ref field, value); } = null;
+        public decimal? Longitude { get; set => SetProperty(ref field, value); } = null;
+
+        public bool UseModeAm { get; set => SetProperty(ref field, value); } = false;
+
+        public bool UseModeC4Fm { get; set => SetProperty(ref field, value); } = false;
+
+        public bool UseModeDmr { get; set => SetProperty(ref field, value); } = false;
+        public string Timeslot { get; set => SetProperty(ref field, value); } = "";
+        public int? Cc { get; set => SetProperty(ref field, value); } = null;
+
+        public bool UseModeDv { get; set => SetProperty(ref field, value); } = false;
+        public string Ur { get; set => SetProperty(ref field, value); } = "";
+        public string Rpt1 { get; set => SetProperty(ref field, value); } = "";
+        public string Rpt2 { get; set => SetProperty(ref field, value); } = "";
+
+        public bool UseModeFm { get; set => SetProperty(ref field, value); } = false;
+        public string Bandwidth { get; set => SetProperty(ref field, value); } = "";
+        public string Tone { get; set => SetProperty(ref field, value); } = "";
+        public decimal? CtcssTone { get; set => SetProperty(ref field, value); } = null;
+
+        public Channel()
+        {
+        }
+
+        public Channel(Channel? source)
+        {
+            if (source != null)
+            {
+                Name = source.Name;
+                Callsign = source.Callsign;
+                Frequency = source.Frequency;
+                Offset = source.Offset;
+                Comment = source.Comment;
+                UseLocation = source.UseLocation;
+                Qth = source.Qth;
+                Locator = source.Locator;
+                Latitude = source.Latitude;
+                Longitude = source.Longitude;
+                UseModeAm = source.UseModeAm;
+                UseModeC4Fm = source.UseModeC4Fm;
+                UseModeDmr = source.UseModeDmr;
+                Timeslot = source.Timeslot;
+                Cc = source.Cc;
+                UseModeDv = source.UseModeDv;
+                Ur = source.Ur;
+                Rpt1 = source.Rpt1;
+                Rpt2 = source.Rpt2;
+                UseModeFm = source.UseModeFm;
+                Bandwidth = source.Bandwidth;
+                Tone = source.Tone;
+                CtcssTone = source.CtcssTone;
+            }
+        }
     }
 }
