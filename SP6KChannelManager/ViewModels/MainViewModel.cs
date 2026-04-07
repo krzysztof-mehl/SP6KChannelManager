@@ -109,7 +109,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void AddGroup()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             Groups.Add(new Group { Name = $"Group {Groups.Count + 1}" });
             SelectedGroup = Groups.Last();
         }
@@ -121,7 +121,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void RemoveGroup()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             Groups.Remove(SelectedGroup!);
 
             OnPropertyChanged(nameof(ChannelsCount));
@@ -139,7 +139,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void MoveUpGroup()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             int index = Groups.IndexOf(SelectedGroup!);
 
             Groups.Move(index, index - 1);
@@ -147,7 +147,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void MoveDownGroup()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             int index = Groups.IndexOf(SelectedGroup!);
 
             Groups.Move(index, index + 1);
@@ -155,21 +155,23 @@ namespace SP6KChannelManager.ViewModels
 
         private void AddChannel()
         {
-            ErrorHandler.NotImplemented();
-            SelectedGroup?.Channels.Add(new Channel { Name = $"Channel {SelectedGroup.Channels.Count + 1}" });
+            //ErrorHandler.NotImplemented();
+            //SelectedGroup?.Channels.Add(new Channel { Name = $"Channel {SelectedGroup.Channels.Count + 1}" });
+            SelectedGroup!.ChannelDetails = new();
             IsAddingChannel = true;
+            IsEditingChannel = true;
         }
 
         private void EditChannel()
         {
-            ErrorHandler.NotImplemented();
-            //SelectedGroup!.SelectedChannel = new(SelectedGroup.SelectedChannel!);
+            //ErrorHandler.NotImplemented();
+            SelectedGroup!.ChannelDetails = SelectedGroup.SelectedChannel!;
             IsEditingChannel = true;
         }
 
         private void RemoveChannel()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
             SelectedGroup!.Channels.Remove(SelectedGroup.SelectedChannel!);
@@ -206,7 +208,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void MoveUpChannel()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
             SelectedGroup.Channels.Move(index, index - 1);
@@ -214,7 +216,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void MoveDownChannel()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
 
             SelectedGroup.Channels.Move(index, index + 1);
@@ -227,12 +229,27 @@ namespace SP6KChannelManager.ViewModels
 
         private void SaveChannelChanges()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
+            if (IsAddingChannel)
+            {
+                SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
+            }
+            else
+            {
+                SelectedGroup!.SelectedChannel = new(SelectedGroup.ChannelDetails!);
+            }
+
+            IsAddingChannel = false;
+            IsEditingChannel = false;
+            SelectedGroup!.ChannelDetails = null;
         }
 
         private void DiscardChannelChanges()
         {
-            ErrorHandler.NotImplemented();
+            //ErrorHandler.NotImplemented();
+            IsAddingChannel = false;
+            IsEditingChannel = false;
+            SelectedGroup!.ChannelDetails = null;
         }
     }
 }

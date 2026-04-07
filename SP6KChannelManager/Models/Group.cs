@@ -7,7 +7,9 @@ namespace SP6KChannelManager.Models
     {
         public string Name { get; set => SetProperty(ref field, value); } = "";
         public ObservableCollection<Channel> Channels { get; set => SetProperty(ref field, value); } = [];
-        public Channel? SelectedChannel { get; set { IsChannelSelected = value != null; SetProperty(ref field, value); } } = null;
+        public Channel? SelectedChannel { get; set { IsChannelSelected = value != null; ChannelDetails = new(value); SetProperty(ref field, value); } } = null;
+        public Channel? ChannelDetails { get; set { IsChannelDetailsVisible = value != null; SetProperty(ref field, value); } } = null;
         public bool IsChannelSelected { get; private set => SetProperty(ref field, value); } = false;
+        public bool IsChannelDetailsVisible { get; private set => SetProperty(ref field, value); } = false;
     }
 }
