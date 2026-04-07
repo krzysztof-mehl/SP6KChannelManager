@@ -1,7 +1,7 @@
 ﻿using SP6KChannelManager.Commands;
 using SP6KChannelManager.Models;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
+using System.Windows;
 
 namespace SP6KChannelManager.ViewModels
 {
@@ -22,17 +22,15 @@ namespace SP6KChannelManager.ViewModels
         public int ChannelsCount => Groups.Sum(group => group.Channels.Count);
         public bool CanMoveUpChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) > 0;
         public bool CanMoveDownChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) < SelectedGroup.Channels.Count - 1;
-        public bool IsEditingChannel { get; set => SetProperty(ref field, value); } = false;
+        public bool IsAddingOrEditingChannel { get; set => SetProperty(ref field, value); } = false;
         public bool IsAddingChannel { get; set => SetProperty(ref field, value); } = false;
         public int ToneIndex { get; set => SetProperty(ref field, value); } = -1;
+
         public static List<string> Timeslots => ["TS1", "TS2"];
-        public static List<int> Ccs => [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+        public static List<int> Ccs => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         public static List<string> Bandwidths => ["Narrow", "Wide"];
         public static List<string> Tones => ["Off", "Tone", "TSQL"];
         public static List<decimal> CtcssTones => [67.0m, 69.3m, 71.9m, 74.4m, 77.0m, 79.7m, 82.5m, 85.4m, 88.5m, 91.5m, 94.8m, 97.4m, 100.0m, 103.5m, 107.2m, 110.9m, 114.8m, 118.8m, 123.0m, 127.3m, 131.8m, 136.5m, 141.3m, 146.2m, 151.4m, 156.7m, 159.8m, 162.2m, 165.5m, 167.9m, 171.3m, 173.8m, 177.3m, 179.9m, 183.5m, 186.2m, 189.9m, 192.8m, 196.6m, 199.5m, 203.5m, 206.5m, 210.7m, 218.1m, 225.7m, 229.1m, 233.6m, 241.8m, 250.3m, 254.1m];
-
-
-        
 
         public RelayCommand NewProjectCommand { get; }
         public RelayCommand OpenProjectCommand { get; }
@@ -59,30 +57,30 @@ namespace SP6KChannelManager.ViewModels
 
         public MainViewModel()
         {
-            NewProjectCommand = new(NewProject, () => !IsEditingChannel);
-            OpenProjectCommand = new(OpenProject, () => !IsEditingChannel);
-            SaveProjectCommand = new(SaveProject, () => !IsEditingChannel);
-            SaveAsProjectCommand = new(SaveAsProject, () => !IsEditingChannel);
+            NewProjectCommand = new(NewProject, () => !IsAddingOrEditingChannel);
+            OpenProjectCommand = new(OpenProject, () => !IsAddingOrEditingChannel);
+            SaveProjectCommand = new(SaveProject, () => !IsAddingOrEditingChannel);
+            SaveAsProjectCommand = new(SaveAsProject, () => !IsAddingOrEditingChannel);
 
-            AddGroupCommand = new(AddGroup, () => !IsEditingChannel);
-            EditGroupCommand = new(EditGroup, () => !IsEditingChannel && IsGroupSelected);
-            RemoveGroupCommand = new(RemoveGroup, () => !IsEditingChannel && IsGroupSelected);
-            CloneGroupCommand = new(CloneGroup, () => !IsEditingChannel && IsGroupSelected);
-            SortGroupByNameCommand = new(SortGroupByName, () => !IsEditingChannel && (Groups.Count > 1));
-            MoveUpGroupCommand = new(MoveUpGroup, () => !IsEditingChannel && CanMoveUpGroup);
-            MoveDownGroupCommand = new(MoveDownGroup, () => !IsEditingChannel && CanMoveDownGroup);
+            AddGroupCommand = new(AddGroup, () => !IsAddingOrEditingChannel);
+            EditGroupCommand = new(EditGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
+            RemoveGroupCommand = new(RemoveGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
+            CloneGroupCommand = new(CloneGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
+            SortGroupByNameCommand = new(SortGroupByName, () => !IsAddingOrEditingChannel && (Groups.Count > 1));
+            MoveUpGroupCommand = new(MoveUpGroup, () => !IsAddingOrEditingChannel && CanMoveUpGroup);
+            MoveDownGroupCommand = new(MoveDownGroup, () => !IsAddingOrEditingChannel && CanMoveDownGroup);
 
-            AddChannelCommand = new(AddChannel, () => !IsEditingChannel && IsGroupSelected);
-            EditChannelCommand = new(EditChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
-            RemoveChannelCommand = new(RemoveChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
-            CloneChannelCommand = new(CloneChannel, () => !IsEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
-            SortChannelByNameCommand = new(SortChannelByName, () => !IsEditingChannel && (SelectedGroup?.Channels.Count > 1));
-            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => !IsEditingChannel && (SelectedGroup?.Channels.Count > 1));
-            MoveUpChannelCommand = new(MoveUpChannel, () => !IsEditingChannel && CanMoveUpChannel);
-            MoveDownChannelCommand = new(MoveDownChannel, () => !IsEditingChannel && CanMoveDownChannel);
+            AddChannelCommand = new(AddChannel, () => !IsAddingOrEditingChannel && IsGroupSelected);
+            EditChannelCommand = new(EditChannel, () => !IsAddingOrEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            RemoveChannelCommand = new(RemoveChannel, () => !IsAddingOrEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            CloneChannelCommand = new(CloneChannel, () => !IsAddingOrEditingChannel && (SelectedGroup?.IsChannelSelected ?? false));
+            SortChannelByNameCommand = new(SortChannelByName, () => !IsAddingOrEditingChannel && (SelectedGroup?.Channels.Count > 1));
+            SortChannelByFrequencyCommand = new(SortChannelByFrequency, () => !IsAddingOrEditingChannel && (SelectedGroup?.Channels.Count > 1));
+            MoveUpChannelCommand = new(MoveUpChannel, () => !IsAddingOrEditingChannel && CanMoveUpChannel);
+            MoveDownChannelCommand = new(MoveDownChannel, () => !IsAddingOrEditingChannel && CanMoveDownChannel);
 
             ShowAboutCommand = new(ShowAbout);
-            SaveChannelChangesCommand = new(SaveChannelChanges, () => IsEditingChannel);
+            SaveChannelChangesCommand = new(SaveChannelChanges, () => IsAddingOrEditingChannel);
             DiscardChannelChangesCommand = new(DiscardChannelChanges);
         }
 
@@ -109,7 +107,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void AddGroup()
         {
-            //ErrorHandler.NotImplemented();
+            ErrorHandler.NotImplemented();
             Groups.Add(new Group { Name = $"Group {Groups.Count + 1}" });
             SelectedGroup = Groups.Last();
         }
@@ -121,10 +119,11 @@ namespace SP6KChannelManager.ViewModels
 
         private void RemoveGroup()
         {
-            //ErrorHandler.NotImplemented();
-            Groups.Remove(SelectedGroup!);
-
-            OnPropertyChanged(nameof(ChannelsCount));
+            if (MessageBox.Show($"Are you sure you want to remove the group '{SelectedGroup!.Name}'?", "Confirm Group Removal", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Groups.Remove(SelectedGroup!);
+                OnPropertyChanged(nameof(ChannelsCount));
+            }
         }
 
         private void CloneGroup()
@@ -134,61 +133,61 @@ namespace SP6KChannelManager.ViewModels
 
         private void SortGroupByName()
         {
-            ErrorHandler.NotImplemented();
+            if (MessageBox.Show("Are you sure you want to sort the groups by name? This action cannot be undone.", "Confirm Group Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                var sortedGroups = Groups.OrderBy(group => group.Name).ToList();
+                Groups.Clear();
+                foreach (var group in sortedGroups)
+                {
+                    Groups.Add(group);
+                }
+            }
         }
 
         private void MoveUpGroup()
         {
-            //ErrorHandler.NotImplemented();
             int index = Groups.IndexOf(SelectedGroup!);
-
             Groups.Move(index, index - 1);
         }
 
         private void MoveDownGroup()
         {
-            //ErrorHandler.NotImplemented();
             int index = Groups.IndexOf(SelectedGroup!);
-
             Groups.Move(index, index + 1);
         }
 
         private void AddChannel()
         {
-            //ErrorHandler.NotImplemented();
-            //SelectedGroup?.Channels.Add(new Channel { Name = $"Channel {SelectedGroup.Channels.Count + 1}" });
             SelectedGroup!.ChannelDetails = new();
             IsAddingChannel = true;
-            IsEditingChannel = true;
+            IsAddingOrEditingChannel = true;
         }
 
         private void EditChannel()
         {
-            //ErrorHandler.NotImplemented();
-            SelectedGroup!.ChannelDetails = SelectedGroup.SelectedChannel!;
-            IsEditingChannel = true;
+            SelectedGroup!.ChannelDetails = new(SelectedGroup.SelectedChannel!);
+            IsAddingOrEditingChannel = true;
         }
 
         private void RemoveChannel()
         {
-            //ErrorHandler.NotImplemented();
-            int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
-
-            SelectedGroup!.Channels.Remove(SelectedGroup.SelectedChannel!);
-
-            if (SelectedGroup.Channels.Count > 0)
+            if (MessageBox.Show($"Are you sure you want to remove the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Removal", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                if (index == SelectedGroup.Channels.Count)
+                int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
+                SelectedGroup!.Channels.Remove(SelectedGroup.SelectedChannel!);
+                if (SelectedGroup.Channels.Count > 0)
                 {
-                    SelectedGroup!.SelectedChannel = SelectedGroup.Channels.Last();
+                    if (index == SelectedGroup.Channels.Count)
+                    {
+                        SelectedGroup!.SelectedChannel = SelectedGroup.Channels.Last();
+                    }
+                    else
+                    {
+                        SelectedGroup!.SelectedChannel = SelectedGroup.Channels[index];
+                    }
                 }
-                else
-                {
-                    SelectedGroup!.SelectedChannel = SelectedGroup.Channels[index];
-                }
+                OnPropertyChanged(nameof(ChannelsCount));
             }
-
-            OnPropertyChanged(nameof(ChannelsCount));
         }
 
         private void CloneChannel()
@@ -198,27 +197,39 @@ namespace SP6KChannelManager.ViewModels
 
         private void SortChannelByName()
         {
-            ErrorHandler.NotImplemented();
+            if (MessageBox.Show("Are you sure you want to sort the channels by name? This action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                var sortedChannels = SelectedGroup!.Channels.OrderBy(channel => channel.Name).ToList();
+                SelectedGroup.Channels.Clear();
+                foreach (var channel in sortedChannels)
+                {
+                    SelectedGroup.Channels.Add(channel);
+                }
+            }
         }
 
         private void SortChannelByFrequency()
         {
-            ErrorHandler.NotImplemented();
+            if (MessageBox.Show("Are you sure you want to sort the channels by frequency? This action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                var sortedChannels = SelectedGroup!.Channels.OrderBy(channel => channel.Frequency).ToList();
+                SelectedGroup.Channels.Clear();
+                foreach (var channel in sortedChannels)
+                {
+                    SelectedGroup.Channels.Add(channel);
+                }
+            }
         }
 
         private void MoveUpChannel()
         {
-            //ErrorHandler.NotImplemented();
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
-
             SelectedGroup.Channels.Move(index, index - 1);
         }
 
         private void MoveDownChannel()
         {
-            //ErrorHandler.NotImplemented();
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
-
             SelectedGroup.Channels.Move(index, index + 1);
         }
 
@@ -229,26 +240,30 @@ namespace SP6KChannelManager.ViewModels
 
         private void SaveChannelChanges()
         {
-            //ErrorHandler.NotImplemented();
+            ErrorHandler.NotImplemented();
             if (IsAddingChannel)
             {
                 SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
+                OnPropertyChanged(nameof(ChannelsCount));
             }
             else
             {
-                SelectedGroup!.SelectedChannel = new(SelectedGroup.ChannelDetails!);
+                if(MessageBox.Show($"Are you sure you want to save the changes to the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
+                    SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
+                }
             }
-
             IsAddingChannel = false;
-            IsEditingChannel = false;
+            IsAddingOrEditingChannel = false;
             SelectedGroup!.ChannelDetails = null;
         }
 
         private void DiscardChannelChanges()
         {
-            //ErrorHandler.NotImplemented();
+            ErrorHandler.NotImplemented();
             IsAddingChannel = false;
-            IsEditingChannel = false;
+            IsAddingOrEditingChannel = false;
             SelectedGroup!.ChannelDetails = null;
         }
     }

@@ -7,13 +7,13 @@
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="800"
         Title="{Binding WindowTitle}" Height="{Binding WindowHeight}" Width="{Binding WindowWidth}">
-    
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        
+
         <Style x:Key="GroupBoxDisabledDuringChannelEdit" TargetType="GroupBox">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                     <Setter Property="IsEnabled" Value="False"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -22,7 +22,7 @@
         <Style x:Key="TextBoxEnabledDuringChannelEdit" TargetType="TextBox">
             <Setter Property="IsReadOnly" Value="True"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                     <Setter Property="IsReadOnly" Value="False"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -31,7 +31,7 @@
         <Style x:Key="CheckBoxEnabledDuringChannelEdit" TargetType="CheckBox">
             <Setter Property="IsEnabled" Value="False"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                     <Setter Property="IsEnabled" Value="True"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -40,13 +40,13 @@
         <Style x:Key="ComboBoxEnabledDuringChannelEdit" TargetType="ComboBox">
             <Setter Property="IsEnabled" Value="False"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                     <Setter Property="IsEnabled" Value="True"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    
+
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenProjectCommand}"/>
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveProjectCommand}"/>
@@ -185,7 +185,7 @@
                         <GroupBox.Header>
                             <CheckBox Content="Location" IsChecked="{Binding SelectedGroup.ChannelDetails.UseLocation}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
-                        <Grid>
+                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseLocation, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -229,7 +229,7 @@
                         <GroupBox.Header>
                             <CheckBox Content="Mode DMR" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDmr}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
-                        <Grid>
+                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeDmr, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -251,7 +251,7 @@
                         <GroupBox.Header>
                             <CheckBox Content="Mode DV (D-STAR)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDv}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
-                        <Grid>
+                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeDv, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -277,7 +277,7 @@
                         <GroupBox.Header>
                             <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
-                        <Grid>
+                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeFm, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -291,10 +291,10 @@
                             <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
                             <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Bandwidths}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Bandwidth}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
-                                <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
+                            <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
                             <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Tone}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
-                                <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
+                            <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
                                 <Label.Style>
                                     <Style TargetType="Label">
                                         <Setter Property="Visibility" Value="Visible"/>
@@ -321,7 +321,7 @@
                                             <DataTrigger Binding="{Binding ToneIndex}" Value="0">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                                                 <Setter Property="IsEnabled" Value="True"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -347,7 +347,7 @@
                                         <DataTrigger Binding="{Binding IsAddingChannel}" Value="True">
                                             <Setter Property="Content" Value="➕ Add"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="False">
+                                        <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="False">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -359,7 +359,7 @@
                                 <Style TargetType="Button">
                                     <Setter Property="Content" Value="✕ Close"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsEditingChannel}" Value="True">
+                                        <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
                                             <Setter Property="Content" Value="✕ Cancel"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -393,43 +393,43 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency [MHz]" Width="100"/>
+                                <GridViewColumn Header="Frequency [MHz]" Width="100" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000000}}"/>
                                 <GridViewColumn Header="AM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"/>
+                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeAm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="C4FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"/>
+                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeC4Fm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="DMR" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"/>
+                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeDmr}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="DV" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"/>
+                                            <CheckBox IsEnabled="False"  IsChecked="{Binding UseModeDv}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Header="FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"/>
+                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeFm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Comment" Width="220"/>
+                                <GridViewColumn Header="Comment" Width="220" DisplayMemberBinding="{Binding Comment}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
