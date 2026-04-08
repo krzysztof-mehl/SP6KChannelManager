@@ -1,36 +1,38 @@
-﻿using SP6KChannelManager.Commands;
+﻿using Microsoft.VisualBasic;
+using SP6KChannelManager.Commands;
 using SP6KChannelManager.Models;
-using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 
 namespace SP6KChannelManager.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        internal ErrorHandler ErrorHandler { get; set; } = new();
-
-        public string WindowTitle { get; set => SetProperty(ref field, value); } = "";
-        public int WindowHeight { get; set => SetProperty(ref field, value); } = 600;
-        public int WindowWidth { get; set => SetProperty(ref field, value); } = 1100;
-        public string Status { get; set => SetProperty(ref field, value); } = "Not initialized";
-
-        public ObservableCollection<Group> Groups { get; set => SetProperty(ref field, value); } = [];
-        public Group? SelectedGroup { get; set { IsGroupSelected = value != null; SetProperty(ref field, value); } } = null;
-        public bool IsGroupSelected { get; private set => SetProperty(ref field, value); } = false;
-        public bool CanMoveUpGroup => IsGroupSelected && Groups.IndexOf(SelectedGroup!) > 0;
-        public bool CanMoveDownGroup => IsGroupSelected && Groups.IndexOf(SelectedGroup!) < Groups.Count - 1;
-        public int ChannelsCount => Groups.Sum(group => group.Channels.Count);
-        public bool CanMoveUpChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) > 0;
-        public bool CanMoveDownChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) < SelectedGroup.Channels.Count - 1;
-        public bool IsAddingOrEditingChannel { get; set => SetProperty(ref field, value); } = false;
-        public bool IsAddingChannel { get; set => SetProperty(ref field, value); } = false;
-        public int ToneIndex { get; set => SetProperty(ref field, value); } = -1;
-
         public static List<string> Timeslots => ["TS1", "TS2"];
         public static List<int> Ccs => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         public static List<string> Bandwidths => ["Narrow", "Wide"];
         public static List<string> Tones => ["Off", "Tone", "TSQL"];
         public static List<decimal> CtcssTones => [67.0m, 69.3m, 71.9m, 74.4m, 77.0m, 79.7m, 82.5m, 85.4m, 88.5m, 91.5m, 94.8m, 97.4m, 100.0m, 103.5m, 107.2m, 110.9m, 114.8m, 118.8m, 123.0m, 127.3m, 131.8m, 136.5m, 141.3m, 146.2m, 151.4m, 156.7m, 159.8m, 162.2m, 165.5m, 167.9m, 171.3m, 173.8m, 177.3m, 179.9m, 183.5m, 186.2m, 189.9m, 192.8m, 196.6m, 199.5m, 203.5m, 206.5m, 210.7m, 218.1m, 225.7m, 229.1m, 233.6m, 241.8m, 250.3m, 254.1m];
+
+        public ErrorHandler ErrorHandler { get; set; } = new();
+
+        public Project CurrentProject { get; set => SetProperty(ref field, value); } = new();
+
+        public string WindowTitle { get; set => SetProperty(ref field, value); } = "";
+        public string Status { get; set => SetProperty(ref field, value); } = "Not initialized";
+
+
+        public Group? SelectedGroup { get; set { IsGroupSelected = value != null; SetProperty(ref field, value); } } = null;
+        public bool IsGroupSelected { get; private set => SetProperty(ref field, value); } = false;
+        public bool CanMoveUpGroup => IsGroupSelected && CurrentProject.Groups.IndexOf(SelectedGroup!) > 0;
+        public bool CanMoveDownGroup => IsGroupSelected && CurrentProject.Groups.IndexOf(SelectedGroup!) < CurrentProject.Groups.Count - 1;
+        public int ChannelsCount => CurrentProject.Groups.Sum(group => group.Channels.Count);
+        public bool CanMoveUpChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) > 0;
+        public bool CanMoveDownChannel => SelectedGroup?.IsChannelSelected == true && SelectedGroup.Channels.IndexOf(SelectedGroup.SelectedChannel!) < SelectedGroup.Channels.Count - 1;
+        public bool IsAddingOrEditingChannel { get; set => SetProperty(ref field, value); } = false;
+        public bool IsAddingChannel { get; set => SetProperty(ref field, value); } = false;
+        public int ToneIndex { get; set => SetProperty(ref field, value); } = -1;
 
         public RelayCommand NewProjectCommand { get; }
         public RelayCommand OpenProjectCommand { get; }
@@ -66,7 +68,7 @@ namespace SP6KChannelManager.ViewModels
             EditGroupCommand = new(EditGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
             RemoveGroupCommand = new(RemoveGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
             CloneGroupCommand = new(CloneGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
-            SortGroupByNameCommand = new(SortGroupByName, () => !IsAddingOrEditingChannel && (Groups.Count > 1));
+            SortGroupByNameCommand = new(SortGroupByName, () => !IsAddingOrEditingChannel && (CurrentProject.Groups.Count > 1));
             MoveUpGroupCommand = new(MoveUpGroup, () => !IsAddingOrEditingChannel && CanMoveUpGroup);
             MoveDownGroupCommand = new(MoveDownGroup, () => !IsAddingOrEditingChannel && CanMoveDownGroup);
 
@@ -87,17 +89,25 @@ namespace SP6KChannelManager.ViewModels
 
         private void NewProject()
         {
-            ErrorHandler.NotImplemented();
+            if (MessageBox.Show("Are you sure you want to create a new project?\nAny unsaved changes will be lost.", "Confirm New Project", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                CurrentProject = new();
+                OnPropertyChanged(nameof(ChannelsCount));
+            }
         }
 
         private void OpenProject()
         {
             ErrorHandler.NotImplemented();
+            string json = File.ReadAllText("project.json");
+            CurrentProject = JsonSerializer.Deserialize<Project>(json) ?? new();
         }
 
         private void SaveProject()
         {
             ErrorHandler.NotImplemented();
+            string json = JsonSerializer.Serialize(CurrentProject);
+            File.WriteAllText("project.json", json);
         }
 
         private void SaveAsProject()
@@ -107,53 +117,95 @@ namespace SP6KChannelManager.ViewModels
 
         private void AddGroup()
         {
-            ErrorHandler.NotImplemented();
-            Groups.Add(new Group { Name = $"Group {Groups.Count + 1}" });
-            SelectedGroup = Groups.Last();
+            string name = Interaction.InputBox("Enter the name of the new group:", "Add Group");
+            if (name != "")
+            {
+                if (Group.ValidateName(ErrorHandler, CurrentProject, name))
+                {
+                    CurrentProject.Groups.Add(new Group { Name = name });
+                    SelectedGroup = CurrentProject.Groups.Last();
+                }
+                else
+                {
+                    ErrorHandler.ShowErrors(ErrorHandler);
+                }
+            }
         }
 
         private void EditGroup()
         {
-            ErrorHandler.NotImplemented();
+            string name = Interaction.InputBox($"Enter the new name of the group '{SelectedGroup!.Name}'", "Edit Group", SelectedGroup!.Name);
+            if (name != "")
+            {
+                if (SelectedGroup!.Name == name)
+                {
+                    MessageBox.Show("The new name is the same as the current name.\nNo changes were made.", "No Changes", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    if (Group.ValidateName(ErrorHandler, CurrentProject, name))
+                    {
+                        SelectedGroup!.Name = name;
+                    }
+                    else
+                    {
+                        ErrorHandler.ShowErrors(ErrorHandler);
+                    }
+                }
+            }
         }
 
         private void RemoveGroup()
         {
             if (MessageBox.Show($"Are you sure you want to remove the group '{SelectedGroup!.Name}'?", "Confirm Group Removal", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                Groups.Remove(SelectedGroup!);
+                CurrentProject.Groups.Remove(SelectedGroup!);
                 OnPropertyChanged(nameof(ChannelsCount));
             }
         }
 
         private void CloneGroup()
         {
-            ErrorHandler.NotImplemented();
+            string name = Interaction.InputBox($"Enter the new name of the group '{SelectedGroup!.Name}'", "Edit Group", SelectedGroup!.Name);
+            if (name != "")
+            {
+
+                if (Group.ValidateName(ErrorHandler, CurrentProject, name))
+                {
+                    CurrentProject.Groups.Add(new Group(SelectedGroup!));
+                    SelectedGroup = CurrentProject.Groups.Last();
+                    SelectedGroup!.Name = name;
+                }
+                else
+                {
+                    ErrorHandler.ShowErrors(ErrorHandler);
+                }
+            }
         }
 
         private void SortGroupByName()
         {
             if (MessageBox.Show("Are you sure you want to sort the groups by name? This action cannot be undone.", "Confirm Group Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                var sortedGroups = Groups.OrderBy(group => group.Name).ToList();
-                Groups.Clear();
+                var sortedGroups = CurrentProject.Groups.OrderBy(group => group.Name).ToList();
+                CurrentProject.Groups.Clear();
                 foreach (var group in sortedGroups)
                 {
-                    Groups.Add(group);
+                    CurrentProject.Groups.Add(group);
                 }
             }
         }
 
         private void MoveUpGroup()
         {
-            int index = Groups.IndexOf(SelectedGroup!);
-            Groups.Move(index, index - 1);
+            int index = CurrentProject.Groups.IndexOf(SelectedGroup!);
+            CurrentProject.Groups.Move(index, index - 1);
         }
 
         private void MoveDownGroup()
         {
-            int index = Groups.IndexOf(SelectedGroup!);
-            Groups.Move(index, index + 1);
+            int index = CurrentProject.Groups.IndexOf(SelectedGroup!);
+            CurrentProject.Groups.Move(index, index + 1);
         }
 
         private void AddChannel()

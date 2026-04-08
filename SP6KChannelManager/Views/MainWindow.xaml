@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SP6KChannelManager.ViewModels"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="800"
-        Title="{Binding WindowTitle}" Height="{Binding WindowHeight}" Width="{Binding WindowWidth}">
+        Title="{Binding WindowTitle}" Height="600" Width="1100">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -60,6 +60,26 @@
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="IsEnabled" Value="False"/>
+        </Style>
+
+        <Style x:Key="NonResizableGridViewColumnHeader" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                        <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        RecognizesAccessKey="True"
+                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -117,7 +137,7 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ChannelsCount, StringFormat={}{0} channel(s) in}"/>
-                    <TextBlock Text="{Binding Groups.Count, StringFormat={} {0} group(s)}"/>
+                    <TextBlock Text="{Binding CurrentProject.Groups.Count, StringFormat={} {0} group(s)}"/>
                 </StackPanel>
             </StatusBarItem>
             <Separator/>
@@ -148,7 +168,7 @@
                         </StackPanel>
                     </DockPanel>
                 </StackPanel>
-                <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}"/>
+                <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.Groups}" SelectedItem="{Binding SelectedGroup}"/>
             </DockPanel>
         </GroupBox>
 
@@ -414,8 +434,8 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency [MHz]" Width="100" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000 000}}"/>
-                                <GridViewColumn Header="AM" Width="35">
+                                <GridViewColumn Header="Frequency" Width="110" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000 000} MHz}"/>
+                                <GridViewColumn Header="AM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeAm}"/>
@@ -423,7 +443,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="C4FM" Width="35">
+                                <GridViewColumn Header="C4FM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeC4Fm}"/>
@@ -431,7 +451,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="DMR" Width="35">
+                                <GridViewColumn Header="DMR" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDmr}"/>
@@ -439,7 +459,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="DV" Width="35">
+                                <GridViewColumn Header="DV" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDv}"/>
@@ -447,13 +467,14 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="FM" Width="35">
+                                <GridViewColumn Header="FM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeFm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+                                <GridViewColumn Header="Comment" Width="230" DisplayMemberBinding="{Binding Comment}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
