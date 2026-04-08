@@ -1,4 +1,5 @@
 ﻿using SP6KChannelManager.ViewModels;
+using System.Text.RegularExpressions;
 
 namespace SP6KChannelManager.Models
 {
@@ -66,6 +67,21 @@ namespace SP6KChannelManager.Models
                 Tone = source.Tone;
                 CtcssTone = source.CtcssTone;
             }
+        }
+
+        public static bool ValidateName(ErrorHandler errorHandler, Project project, string name, Group selectedGroup)
+        {
+            if (!Regex.IsMatch(name, project.ChannelNamePattern))
+            {
+                ErrorHandler.AddError(errorHandler, $"{project.ChannelNamePatternDescription}\n\n{project.ChannelNamePattern}");
+                return false;
+            }
+            if (selectedGroup.Channels.Any(c => c.Name == name))
+            {
+                ErrorHandler.AddError(errorHandler, "Channel name must be unique within the group.");
+                return false;
+            }
+            return true;
         }
     }
 }

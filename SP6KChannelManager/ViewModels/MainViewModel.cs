@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using SP6KChannelManager.Commands;
+using SP6KChannelManager.Helpers;
 using SP6KChannelManager.Models;
 using System.IO;
 using System.Text.Json;
@@ -19,7 +20,15 @@ namespace SP6KChannelManager.ViewModels
 
         public Project CurrentProject { get; set => SetProperty(ref field, value); } = new();
 
-        public string WindowTitle { get; set => SetProperty(ref field, value); } = "";
+        public string WindowTitle
+        {
+            get
+            {
+                string product = AssemblyHelper.Product;
+                string version = AssemblyHelper.InformationalVersion;
+                return $"{product} v{version}";
+            }
+        }
         public string Status { get; set => SetProperty(ref field, value); } = "Not initialized";
 
 
@@ -33,6 +42,7 @@ namespace SP6KChannelManager.ViewModels
         public bool IsAddingOrEditingChannel { get; set => SetProperty(ref field, value); } = false;
         public bool IsAddingChannel { get; set => SetProperty(ref field, value); } = false;
         public int ToneIndex { get; set => SetProperty(ref field, value); } = -1;
+        public bool IsDataModified { get; set { SetProperty(ref field, value); } } = false;
 
         public RelayCommand NewProjectCommand { get; }
         public RelayCommand OpenProjectCommand { get; }
@@ -89,11 +99,12 @@ namespace SP6KChannelManager.ViewModels
 
         private void NewProject()
         {
-            if (MessageBox.Show("Are you sure you want to create a new project?\nAny unsaved changes will be lost.", "Confirm New Project", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (IsDataModified && MessageBox.Show("Are you sure you want to create a new project?\nAny unsaved changes will be lost.", "Confirm New Project", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
-                CurrentProject = new();
-                OnPropertyChanged(nameof(ChannelsCount));
+                return;
             }
+            CurrentProject = new();
+            OnPropertyChanged(nameof(ChannelsCount));
         }
 
         private void OpenProject()
@@ -169,12 +180,12 @@ namespace SP6KChannelManager.ViewModels
             string name = Interaction.InputBox($"Enter the new name of the group '{SelectedGroup!.Name}'", "Edit Group", SelectedGroup!.Name);
             if (name != "")
             {
-
                 if (Group.ValidateName(ErrorHandler, CurrentProject, name))
                 {
                     CurrentProject.Groups.Add(new Group(SelectedGroup!));
                     SelectedGroup = CurrentProject.Groups.Last();
                     SelectedGroup!.Name = name;
+                    OnPropertyChanged(nameof(ChannelsCount));
                 }
                 else
                 {
@@ -185,7 +196,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void SortGroupByName()
         {
-            if (MessageBox.Show("Are you sure you want to sort the groups by name? This action cannot be undone.", "Confirm Group Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Are you sure you want to sort the groups by name?\nThis action cannot be undone.", "Confirm Group Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 var sortedGroups = CurrentProject.Groups.OrderBy(group => group.Name).ToList();
                 CurrentProject.Groups.Clear();
@@ -244,12 +255,16 @@ namespace SP6KChannelManager.ViewModels
 
         private void CloneChannel()
         {
-            ErrorHandler.NotImplemented();
+            Channel clonedChannel = new(SelectedGroup!.SelectedChannel!);
+            SelectedGroup!.SelectedChannel = null;
+            SelectedGroup!.ChannelDetails = clonedChannel;
+            IsAddingChannel = true;
+            IsAddingOrEditingChannel = true;
         }
 
         private void SortChannelByName()
         {
-            if (MessageBox.Show("Are you sure you want to sort the channels by name? This action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Are you sure you want to sort the channels by name?\nThis action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 var sortedChannels = SelectedGroup!.Channels.OrderBy(channel => channel.Name).ToList();
                 SelectedGroup.Channels.Clear();
@@ -262,7 +277,7 @@ namespace SP6KChannelManager.ViewModels
 
         private void SortChannelByFrequency()
         {
-            if (MessageBox.Show("Are you sure you want to sort the channels by frequency? This action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Are you sure you want to sort the channels by frequency?\nThis action cannot be undone.", "Confirm Channel Sorting", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 var sortedChannels = SelectedGroup!.Channels.OrderBy(channel => channel.Frequency).ToList();
                 SelectedGroup.Channels.Clear();
