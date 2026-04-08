@@ -20,10 +20,18 @@
         </Style>
 
         <Style x:Key="TextBoxEnabledDuringChannelEdit" TargetType="TextBox">
+            <!-- inactive/read-only look -->
             <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
+                    <!-- active/edit look -->
                     <Setter Property="IsReadOnly" Value="False"/>
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -44,6 +52,14 @@
                     <Setter Property="IsEnabled" Value="True"/>
                 </DataTrigger>
             </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CenteredCellCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="IsEnabled" Value="False"/>
         </Style>
     </Window.Resources>
 
@@ -170,13 +186,13 @@
                     <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="2" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency, StringFormat={}{0:0.000 000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Label Grid.Row="3" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="3" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset, StringFormat={}{0:0.000 000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
@@ -390,46 +406,54 @@
 
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                     <ListView Margin="5" SelectionMode="Single" ItemsSource="{Binding SelectedGroup.Channels}" SelectedItem="{Binding SelectedGroup.SelectedChannel}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency [MHz]" Width="100" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000000}}"/>
+                                <GridViewColumn Header="Frequency [MHz]" Width="100" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000 000}}"/>
                                 <GridViewColumn Header="AM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeAm}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeAm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+
                                 <GridViewColumn Header="C4FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeC4Fm}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeC4Fm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+
                                 <GridViewColumn Header="DMR" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeDmr}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDmr}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+
                                 <GridViewColumn Header="DV" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False"  IsChecked="{Binding UseModeDv}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDv}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+
                                 <GridViewColumn Header="FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsEnabled="False" IsChecked="{Binding UseModeFm}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeFm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Comment" Width="220" DisplayMemberBinding="{Binding Comment}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>

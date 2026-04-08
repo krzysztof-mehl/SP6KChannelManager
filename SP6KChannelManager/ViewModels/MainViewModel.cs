@@ -244,19 +244,20 @@ namespace SP6KChannelManager.ViewModels
             if (IsAddingChannel)
             {
                 SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
+                SelectedGroup.SelectedChannel = SelectedGroup.Channels.Last();
                 OnPropertyChanged(nameof(ChannelsCount));
             }
             else
             {
-                if(MessageBox.Show($"Are you sure you want to save the changes to the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show($"Are you sure you want to save the changes to the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
                     SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
+                    SelectedGroup.SelectedChannel = SelectedGroup.Channels[index];
                 }
             }
             IsAddingChannel = false;
             IsAddingOrEditingChannel = false;
-            SelectedGroup!.ChannelDetails = null;
         }
 
         private void DiscardChannelChanges()
