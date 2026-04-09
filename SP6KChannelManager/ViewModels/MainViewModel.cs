@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic;
+using Microsoft.Win32;
 using SP6KChannelManager.Commands;
 using SP6KChannelManager.Helpers;
 using SP6KChannelManager.Models;
@@ -50,6 +51,7 @@ namespace SP6KChannelManager.ViewModels
         public RelayCommand OpenProjectCommand { get; }
         public RelayCommand SaveProjectCommand { get; }
         public RelayCommand SaveAsProjectCommand { get; }
+        public RelayCommand ExitCommand { get; }
         public RelayCommand AddGroupCommand { get; }
         public RelayCommand EditGroupCommand { get; }
         public RelayCommand RemoveGroupCommand { get; }
@@ -73,8 +75,9 @@ namespace SP6KChannelManager.ViewModels
         {
             NewProjectCommand = new(NewProject, () => !IsAddingOrEditingChannel);
             OpenProjectCommand = new(OpenProject, () => !IsAddingOrEditingChannel);
-            SaveProjectCommand = new(SaveProject, () => !IsAddingOrEditingChannel);
+            SaveProjectCommand = new(SaveProject, () => !IsAddingOrEditingChannel && CurrentProject.FilePath != "");
             SaveAsProjectCommand = new(SaveAsProject, () => !IsAddingOrEditingChannel);
+            ExitCommand = new(new Action(() => Application.Current.Windows.OfType<Window>().FirstOrDefault(window => window.IsActive)?.Close()));
 
             AddGroupCommand = new(AddGroup, () => !IsAddingOrEditingChannel);
             EditGroupCommand = new(EditGroup, () => !IsAddingOrEditingChannel && IsGroupSelected);
@@ -98,7 +101,6 @@ namespace SP6KChannelManager.ViewModels
             DiscardChannelChangesCommand = new(DiscardChannelChanges);
         }
 
-
         private void NewProject()
         {
             if (IsDataModified && MessageBox.Show("Are you sure you want to create a new project?\nAny unsaved changes will be lost.", "Confirm New Project", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
@@ -112,24 +114,74 @@ namespace SP6KChannelManager.ViewModels
 
         private void OpenProject()
         {
-            ErrorHandler.NotImplemented();
-            string json = File.ReadAllText("project.json");
-            CurrentProject = JsonSerializer.Deserialize<Project>(json) ?? new();
-            IsDataModified = false;
+            if (IsDataModified && MessageBox.Show("Are you sure you want to open a project?\nAny unsaved changes will be lost.", "Confirm Open Project", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            OpenFileDialog openFileDialog = new()
+            {
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    string projectJson = File.ReadAllText(openFileDialog.FileName);
+                    Project project = JsonSerializer.Deserialize<Project>(projectJson) ?? new();
+                    if (project.FilePath != "")
+                    {
+                        if (project.Version != AssemblyHelper.Version)
+                        {
+                            if (MessageBox.Show($"The project was created with version {project.Version} of the application, while you are using version {AssemblyHelper.Version}.\nOpening the project may cause compatibility issues or data loss.\nDo you want to proceed?", "Project Version Mismatch", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                            {
+                                project.FilePath = openFileDialog.FileName;
+                                CurrentProject = project;
+                                IsDataModified = false;
+                                OnPropertyChanged(nameof(ChannelsCount));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("The selected file does not contain a valid project.\nPlease select a valid project file.", "Invalid Project File", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An error occurred while opening the project:\n{ex.Message}", "Open Project Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void SaveProject()
         {
-            ErrorHandler.NotImplemented();
-            string json = JsonSerializer.Serialize(CurrentProject);
-            File.WriteAllText("project.json", json);
-            IsDataModified = false;
+            try
+            {
+                string projectJson = JsonSerializer.Serialize(CurrentProject);
+                File.WriteAllText(CurrentProject.FilePath, projectJson);
+                IsDataModified = false;
+                MessageBox.Show("Project saved successfully.", "Save Project", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while saving the project:\n{ex.Message}", "Save Project Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SaveAsProject()
         {
-            ErrorHandler.NotImplemented();
-            IsDataModified = false;
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                OverwritePrompt = true
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                CurrentProject.FilePath = saveFileDialog.FileName;
+                SaveProject();
+            }
         }
 
         private void AddGroup()

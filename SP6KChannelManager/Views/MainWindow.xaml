@@ -103,7 +103,7 @@
                 <MenuItem Header="Save" InputGestureText="Ctrl+S" Command="{Binding SaveProjectCommand}"/>
                 <MenuItem Header="Save As" InputGestureText="Ctrl+Shift+S" Command="{Binding SaveAsProjectCommand}"/>
                 <Separator/>
-                <MenuItem Header="Exit" InputGestureText="Alt+F4"/>
+                <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="Group">
                 <MenuItem Header="Add" InputGestureText="Ctrl+Shift+N" Command="{Binding AddGroupCommand}"/>
