@@ -26,7 +26,9 @@ namespace SP6KChannelManager.ViewModels
             {
                 string product = AssemblyHelper.Product;
                 string version = AssemblyHelper.InformationalVersion;
-                return $"{product} v{version}";
+                string fileName = CurrentProject.FilePath == "" ? "unsaved" : Path.GetFileNameWithoutExtension(CurrentProject.FilePath);
+                string modifiedIndicator = IsDataModified ? "*" : "";
+                return $"{product} v{version} - {fileName}{modifiedIndicator}";
             }
         }
         public string Status { get; set => SetProperty(ref field, value); } = "Not initialized";
@@ -42,7 +44,7 @@ namespace SP6KChannelManager.ViewModels
         public bool IsAddingOrEditingChannel { get; set => SetProperty(ref field, value); } = false;
         public bool IsAddingChannel { get; set => SetProperty(ref field, value); } = false;
         public int ToneIndex { get; set => SetProperty(ref field, value); } = -1;
-        public bool IsDataModified { get; set { SetProperty(ref field, value); } } = false;
+        public bool IsDataModified { get; set { if (!Equals(field, value)) { SetProperty(ref field, value); OnPropertyChanged(nameof(WindowTitle)); } } } = false;
 
         public RelayCommand NewProjectCommand { get; }
         public RelayCommand OpenProjectCommand { get; }
@@ -104,6 +106,7 @@ namespace SP6KChannelManager.ViewModels
                 return;
             }
             CurrentProject = new();
+            IsDataModified = false;
             OnPropertyChanged(nameof(ChannelsCount));
         }
 
@@ -112,6 +115,7 @@ namespace SP6KChannelManager.ViewModels
             ErrorHandler.NotImplemented();
             string json = File.ReadAllText("project.json");
             CurrentProject = JsonSerializer.Deserialize<Project>(json) ?? new();
+            IsDataModified = false;
         }
 
         private void SaveProject()
@@ -119,11 +123,13 @@ namespace SP6KChannelManager.ViewModels
             ErrorHandler.NotImplemented();
             string json = JsonSerializer.Serialize(CurrentProject);
             File.WriteAllText("project.json", json);
+            IsDataModified = false;
         }
 
         private void SaveAsProject()
         {
             ErrorHandler.NotImplemented();
+            IsDataModified = false;
         }
 
         private void AddGroup()
@@ -135,6 +141,7 @@ namespace SP6KChannelManager.ViewModels
                 {
                     CurrentProject.Groups.Add(new Group { Name = name });
                     SelectedGroup = CurrentProject.Groups.Last();
+                    IsDataModified = true;
                 }
                 else
                 {
@@ -157,6 +164,7 @@ namespace SP6KChannelManager.ViewModels
                     if (Group.ValidateName(ErrorHandler, CurrentProject, name))
                     {
                         SelectedGroup!.Name = name;
+                        IsDataModified = true;
                     }
                     else
                     {
@@ -171,6 +179,7 @@ namespace SP6KChannelManager.ViewModels
             if (MessageBox.Show($"Are you sure you want to remove the group '{SelectedGroup!.Name}'?", "Confirm Group Removal", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 CurrentProject.Groups.Remove(SelectedGroup!);
+                IsDataModified = true;
                 OnPropertyChanged(nameof(ChannelsCount));
             }
         }
@@ -185,6 +194,7 @@ namespace SP6KChannelManager.ViewModels
                     CurrentProject.Groups.Add(new Group(SelectedGroup!));
                     SelectedGroup = CurrentProject.Groups.Last();
                     SelectedGroup!.Name = name;
+                    IsDataModified = true;
                     OnPropertyChanged(nameof(ChannelsCount));
                 }
                 else
@@ -204,6 +214,7 @@ namespace SP6KChannelManager.ViewModels
                 {
                     CurrentProject.Groups.Add(group);
                 }
+                IsDataModified = true;
             }
         }
 
@@ -211,12 +222,14 @@ namespace SP6KChannelManager.ViewModels
         {
             int index = CurrentProject.Groups.IndexOf(SelectedGroup!);
             CurrentProject.Groups.Move(index, index - 1);
+            IsDataModified = true;
         }
 
         private void MoveDownGroup()
         {
             int index = CurrentProject.Groups.IndexOf(SelectedGroup!);
             CurrentProject.Groups.Move(index, index + 1);
+            IsDataModified = true;
         }
 
         private void AddChannel()
@@ -249,6 +262,7 @@ namespace SP6KChannelManager.ViewModels
                         SelectedGroup!.SelectedChannel = SelectedGroup.Channels[index];
                     }
                 }
+                IsDataModified = true;
                 OnPropertyChanged(nameof(ChannelsCount));
             }
         }
@@ -272,6 +286,7 @@ namespace SP6KChannelManager.ViewModels
                 {
                     SelectedGroup.Channels.Add(channel);
                 }
+                IsDataModified = true;
             }
         }
 
@@ -285,6 +300,7 @@ namespace SP6KChannelManager.ViewModels
                 {
                     SelectedGroup.Channels.Add(channel);
                 }
+                IsDataModified = true;
             }
         }
 
@@ -292,12 +308,14 @@ namespace SP6KChannelManager.ViewModels
         {
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
             SelectedGroup.Channels.Move(index, index - 1);
+            IsDataModified = true;
         }
 
         private void MoveDownChannel()
         {
             int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
             SelectedGroup.Channels.Move(index, index + 1);
+            IsDataModified = true;
         }
 
         private void ShowAbout()
@@ -312,6 +330,7 @@ namespace SP6KChannelManager.ViewModels
             {
                 SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
                 SelectedGroup.SelectedChannel = SelectedGroup.Channels.Last();
+                IsDataModified = true;
                 OnPropertyChanged(nameof(ChannelsCount));
             }
             else
@@ -321,6 +340,7 @@ namespace SP6KChannelManager.ViewModels
                     int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
                     SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
                     SelectedGroup.SelectedChannel = SelectedGroup.Channels[index];
+                    IsDataModified = true;
                 }
             }
             IsAddingChannel = false;
