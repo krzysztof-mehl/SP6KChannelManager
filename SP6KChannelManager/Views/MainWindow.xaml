@@ -206,7 +206,7 @@
                     <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="2" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency, StringFormat={}{0:0.000 000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Label Grid.Row="3" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right"/>
@@ -433,8 +433,14 @@
                         </ListView.ItemContainerStyle>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency" Width="110" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.000 000} MHz}"/>
+                                <GridViewColumn Header="Name" Width="110" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Frequency" Width="105">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Frequency, StringFormat={}{0:0.000 000} MHz}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="AM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
@@ -474,7 +480,7 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Comment" Width="230" DisplayMemberBinding="{Binding Comment}"/>
+                                <GridViewColumn Header="Comment" Width="300" DisplayMemberBinding="{Binding Comment}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>

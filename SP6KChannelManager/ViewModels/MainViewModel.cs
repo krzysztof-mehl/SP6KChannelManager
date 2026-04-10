@@ -377,34 +377,45 @@ namespace SP6KChannelManager.ViewModels
 
         private void SaveChannelChanges()
         {
-            ErrorHandler.NotImplemented();
-            if (IsAddingChannel)
+            if (SelectedGroup!.ChannelDetails!.Validate(ErrorHandler, CurrentProject, SelectedGroup))
             {
-                SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
-                SelectedGroup.SelectedChannel = SelectedGroup.Channels.Last();
-                IsDataModified = true;
-                OnPropertyChanged(nameof(ChannelsCount));
+                if (IsAddingChannel)
+                {
+                    SelectedGroup!.Channels.Add(new(SelectedGroup.ChannelDetails!));
+                    SelectedGroup.SelectedChannel = SelectedGroup.Channels.Last();
+                    IsDataModified = true;
+                    OnPropertyChanged(nameof(ChannelsCount));
+                }
+                else
+                {
+                    if (MessageBox.Show($"Are you sure you want to save the changes to the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
+                        SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
+                        SelectedGroup.SelectedChannel = SelectedGroup.Channels[index];
+                        IsDataModified = true;
+                    }
+                }
+                IsAddingChannel = false;
+                IsAddingOrEditingChannel = false;
             }
             else
             {
-                if (MessageBox.Show($"Are you sure you want to save the changes to the channel '{SelectedGroup!.SelectedChannel!.Name}'?", "Confirm Channel Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    int index = SelectedGroup!.Channels.IndexOf(SelectedGroup.SelectedChannel!);
-                    SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
-                    SelectedGroup.SelectedChannel = SelectedGroup.Channels[index];
-                    IsDataModified = true;
-                }
+                ErrorHandler.ShowErrors(ErrorHandler);
             }
-            IsAddingChannel = false;
-            IsAddingOrEditingChannel = false;
         }
 
         private void DiscardChannelChanges()
         {
-            ErrorHandler.NotImplemented();
+            if (IsAddingOrEditingChannel && MessageBox.Show("Are you sure you want to discard the changes to the channel?", "Confirm Discard Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            SelectedGroup!.SelectedChannel = null;
+            SelectedGroup!.ChannelDetails = null;
             IsAddingChannel = false;
             IsAddingOrEditingChannel = false;
-            SelectedGroup!.ChannelDetails = null;
+
         }
     }
 }

@@ -69,6 +69,14 @@ namespace SP6KChannelManager.Models
             }
         }
 
+        public bool Validate(ErrorHandler errorHandler, Project project, Group selectedGroup)
+        {
+            if (!ValidateName(errorHandler, project, Name, selectedGroup)) { return false; }
+            if (!ValidateCallsign(errorHandler, project, Callsign)) { return false; }
+            if (!ValidateFrequency(errorHandler, project, Frequency)) { return false; }
+            return true;
+        }
+
         public static bool ValidateName(ErrorHandler errorHandler, Project project, string name, Group selectedGroup)
         {
             if (!Regex.IsMatch(name, project.ChannelNamePattern))
@@ -79,6 +87,32 @@ namespace SP6KChannelManager.Models
             if (selectedGroup.Channels.Any(c => c.Name == name))
             {
                 ErrorHandler.AddError(errorHandler, "Channel name must be unique within the group.");
+                return false;
+            }
+            return true;
+        }
+
+        public static bool ValidateCallsign(ErrorHandler errorHandler, Project project, string callsign)
+        {
+            if (callsign == "") return true;
+            if (!Regex.IsMatch(callsign, project.CallsignPattern))
+            {
+                ErrorHandler.AddError(errorHandler, $"{project.CallsignPatternDescription}\n\n{project.CallsignPattern}");
+                return false;
+            }
+            return true;
+        }
+
+        public static bool ValidateFrequency(ErrorHandler errorHandler, Project project, decimal? frequency)
+        {
+            if (frequency == null)
+            {
+                ErrorHandler.AddError(errorHandler, "Frequency is required.");
+                return false;
+            }
+            if (frequency < project.FrequencyMin || frequency > project.FrequencyMax)
+            {
+                ErrorHandler.AddError(errorHandler, $"Frequency must be between {project.FrequencyMin} and {project.FrequencyMax} MHz.");
                 return false;
             }
             return true;
