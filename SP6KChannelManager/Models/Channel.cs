@@ -1,4 +1,6 @@
 ﻿using SP6KChannelManager.ViewModels;
+using System.Globalization;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace SP6KChannelManager.Models
@@ -8,7 +10,9 @@ namespace SP6KChannelManager.Models
         public string Name { get; set => SetProperty(ref field, value); } = "";
         public string Callsign { get; set => SetProperty(ref field, value); } = "";
         public decimal? Frequency { get; set => SetProperty(ref field, value); } = null;
+        [JsonIgnore] public string FrequencyString { get; set { SetProperty(ref field, value); } } = "";
         public decimal? Offset { get; set => SetProperty(ref field, value); } = null;
+        [JsonIgnore] public string OffsetString { get; set { SetProperty(ref field, value); } } = "";
         public string Comment { get; set => SetProperty(ref field, value); } = "";
 
         public bool UseLocation { get; set => SetProperty(ref field, value); } = false;
@@ -46,7 +50,9 @@ namespace SP6KChannelManager.Models
                 Name = source.Name;
                 Callsign = source.Callsign;
                 Frequency = source.Frequency;
+                FrequencyString = Frequency.ToString() ?? "";
                 Offset = source.Offset;
+                OffsetString = Offset.ToString() ?? "";
                 Comment = source.Comment;
                 UseLocation = source.UseLocation;
                 Qth = source.Qth;
@@ -71,9 +77,10 @@ namespace SP6KChannelManager.Models
 
         public bool Validate(ErrorHandler errorHandler, Project project, Group selectedGroup)
         {
-            if (!ValidateName(errorHandler, project, Name, selectedGroup)) { return false; }
-            if (!ValidateCallsign(errorHandler, project, Callsign)) { return false; }
-            if (!ValidateFrequency(errorHandler, project, Frequency)) { return false; }
+            if (!ValidateName(errorHandler, project, selectedGroup)) { return false; }
+            if (!ValidateCallsign(errorHandler, project)) { return false; }
+            if (!ValidateFrequency(errorHandler, project)) { return false; }
+            if (!ValidateOffset(errorHandler, project)) { return false; }
             return true;
         }
 
@@ -84,6 +91,10 @@ namespace SP6KChannelManager.Models
                 ErrorHandler.AddError(errorHandler, $"{project.ChannelNamePatternDescription}\n\n{project.ChannelNamePattern}");
                 return false;
             }
+            if (selectedGroup.SelectedChannel != null && selectedGroup.SelectedChannel.Name == name)
+            {
+                return true;
+            }
             if (selectedGroup.Channels.Any(c => c.Name == name))
             {
                 ErrorHandler.AddError(errorHandler, "Channel name must be unique within the group.");
@@ -92,10 +103,15 @@ namespace SP6KChannelManager.Models
             return true;
         }
 
-        public static bool ValidateCallsign(ErrorHandler errorHandler, Project project, string callsign)
+        public bool ValidateName(ErrorHandler errorHandler, Project project, Group selectedGroup)
         {
-            if (callsign == "") return true;
-            if (!Regex.IsMatch(callsign, project.CallsignPattern))
+            return ValidateName(errorHandler, project, Name, selectedGroup);
+        }
+
+        public bool ValidateCallsign(ErrorHandler errorHandler, Project project)
+        {
+            if (Callsign == "") return true;
+            if (!Regex.IsMatch(Callsign, project.CallsignPattern))
             {
                 ErrorHandler.AddError(errorHandler, $"{project.CallsignPatternDescription}\n\n{project.CallsignPattern}");
                 return false;
@@ -103,16 +119,65 @@ namespace SP6KChannelManager.Models
             return true;
         }
 
-        public static bool ValidateFrequency(ErrorHandler errorHandler, Project project, decimal? frequency)
+        public bool ValidateFrequency(ErrorHandler errorHandler, Project project)
         {
-            if (frequency == null)
+            if (FrequencyString == "")
+            {
+                Frequency = null;
+            }
+            else
+            {
+                try
+                {
+                    FrequencyString = FrequencyString.Trim();
+                    Frequency = decimal.Parse(FrequencyString.Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                    ErrorHandler.AddError(errorHandler, "Frequency must be a number.");
+                    return false;
+                }
+            }
+            if (Frequency == null)
             {
                 ErrorHandler.AddError(errorHandler, "Frequency is required.");
                 return false;
             }
-            if (frequency < project.FrequencyMin || frequency > project.FrequencyMax)
+            if (Frequency < project.FrequencyMin || Frequency > project.FrequencyMax)
             {
                 ErrorHandler.AddError(errorHandler, $"Frequency must be between {project.FrequencyMin} and {project.FrequencyMax} MHz.");
+                return false;
+            }
+            return true;
+        }
+
+        public bool ValidateOffset(ErrorHandler errorHandler, Project project)
+        {
+            if (OffsetString == "")
+            {
+                Offset = null;
+            }
+            else
+            {
+                try
+                {
+                    OffsetString = OffsetString.Trim();
+                    Offset = decimal.Parse(OffsetString.Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                    ErrorHandler.AddError(errorHandler, "Offset must be a number.");
+                    return false;
+                }
+            }
+            if (Offset == null)
+            {
+                ErrorHandler.AddError(errorHandler, "Offset is required.");
+                return false;
+            }
+            if ((Frequency + Offset) < project.FrequencyMin || (Frequency + Offset) > project.FrequencyMax)
+            {
+                ErrorHandler.AddError(errorHandler, $"Frequency + Offset must be between {project.FrequencyMin} and {project.FrequencyMax} MHz.");
                 return false;
             }
             return true;

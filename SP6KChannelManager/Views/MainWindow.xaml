@@ -206,13 +206,13 @@
                     <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="2" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.FrequencyString}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Label Grid.Row="3" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="3" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset, StringFormat={}{0:0.000 000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.OffsetString}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
                     <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
@@ -434,10 +434,10 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Name" Width="110" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency" Width="105">
+                                <GridViewColumn Header="Frequency [MHz]" Width="105">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Frequency, StringFormat={}{0:0.000 000} MHz}"/>
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Frequency, StringFormat={}{0:0.000 000}}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

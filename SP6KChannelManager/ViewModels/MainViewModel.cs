@@ -134,14 +134,15 @@ namespace SP6KChannelManager.ViewModels
                     {
                         if (project.Version != AssemblyHelper.Version)
                         {
-                            if (MessageBox.Show($"The project was created with version {project.Version} of the application, while you are using version {AssemblyHelper.Version}.\nOpening the project may cause compatibility issues or data loss.\nDo you want to proceed?", "Project Version Mismatch", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                            if (MessageBox.Show($"The project was created with version {project.Version} of the application, while you are using version {AssemblyHelper.Version}.\nOpening the project may cause compatibility issues or data loss.\nDo you want to proceed?", "Project Version Mismatch", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                             {
-                                project.FilePath = openFileDialog.FileName;
-                                CurrentProject = project;
-                                IsDataModified = false;
-                                OnPropertyChanged(nameof(ChannelsCount));
+                                return;
                             }
                         }
+                        project.FilePath = openFileDialog.FileName;
+                        CurrentProject = project;
+                        IsDataModified = false;
+                        OnPropertyChanged(nameof(ChannelsCount));
                     }
                     else
                     {
