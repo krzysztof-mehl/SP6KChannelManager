@@ -15,8 +15,12 @@ namespace SP6KChannelManager.Models
         public string ChannelNamePatternDescription { get; set; } = $"Channel name must be 1 to 16 characters long, cannot start or end with a space, and can only contain printable ASCII characters.";
         public string CallsignPattern { get; set; } = @"^([A-Z0-9]{1,3}[0-9][A-Z0-9]{0,3}[A-Z])$";
         public string CallsignPatternDescription { get; set; } = "Callsign must follow the ITU amateur callsign format.";
-        public decimal FrequencyMin { get; set; } = 108.0m;
-        public decimal FrequencyMax { get; set; } = 450.0m;
+
+        public string? DefaultBandwidth { get; set; } = null;
+        public string? DefaultTone { get; set; } = null;
+        public decimal? DefaultCtcssTone { get; set; } = null;
+        public string? DefaultTimeslot { get; set; } = null;
+        public int? DefaultCc { get; set; } = null;
 
         public ObservableCollection<Group> Groups { get; set => SetProperty(ref field, value); } = [];
     }

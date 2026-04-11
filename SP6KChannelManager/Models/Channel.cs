@@ -8,7 +8,7 @@ namespace SP6KChannelManager.Models
     public class Channel : BaseViewModel
     {
         public string Name { get; set => SetProperty(ref field, value); } = "";
-        public string Callsign { get; set => SetProperty(ref field, value); } = "";
+        public string Callsign { get; set { if (Name == "") Name = value; SetProperty(ref field, value); } } = "";
         public decimal? Frequency { get; set => SetProperty(ref field, value); } = null;
         public decimal? Offset { get; set => SetProperty(ref field, value); } = null;
         public string Comment { get; set => SetProperty(ref field, value); } = "";
@@ -19,7 +19,10 @@ namespace SP6KChannelManager.Models
         public decimal? Latitude { get; set => SetProperty(ref field, value); } = null;
         public decimal? Longitude { get; set => SetProperty(ref field, value); } = null;
 
-        public bool UseModeAm { get; set => SetProperty(ref field, value); } = false;
+        public bool UseModeFm { get; set => SetProperty(ref field, value); } = false;
+        public string Bandwidth { get; set => SetProperty(ref field, value); } = "";
+        public string Tone { get; set => SetProperty(ref field, value); } = "";
+        public decimal? CtcssTone { get; set => SetProperty(ref field, value); } = null;
 
         public bool UseModeC4Fm { get; set => SetProperty(ref field, value); } = false;
 
@@ -32,10 +35,7 @@ namespace SP6KChannelManager.Models
         public string Rpt1 { get; set => SetProperty(ref field, value); } = "";
         public string Rpt2 { get; set => SetProperty(ref field, value); } = "";
 
-        public bool UseModeFm { get; set => SetProperty(ref field, value); } = false;
-        public string Bandwidth { get; set => SetProperty(ref field, value); } = "";
-        public string Tone { get; set => SetProperty(ref field, value); } = "";
-        public decimal? CtcssTone { get; set => SetProperty(ref field, value); } = null;
+        public bool UseModeAm { get; set => SetProperty(ref field, value); } = false;
 
         public Channel()
         {
@@ -55,7 +55,10 @@ namespace SP6KChannelManager.Models
                 Locator = source.Locator;
                 Latitude = source.Latitude;
                 Longitude = source.Longitude;
-                UseModeAm = source.UseModeAm;
+                UseModeFm = source.UseModeFm;
+                Bandwidth = source.Bandwidth;
+                Tone = source.Tone;
+                CtcssTone = source.CtcssTone;
                 UseModeC4Fm = source.UseModeC4Fm;
                 UseModeDmr = source.UseModeDmr;
                 Timeslot = source.Timeslot;
@@ -64,10 +67,7 @@ namespace SP6KChannelManager.Models
                 Ur = source.Ur;
                 Rpt1 = source.Rpt1;
                 Rpt2 = source.Rpt2;
-                UseModeFm = source.UseModeFm;
-                Bandwidth = source.Bandwidth;
-                Tone = source.Tone;
-                CtcssTone = source.CtcssTone;
+                UseModeAm = source.UseModeAm;
             }
         }
 
@@ -107,36 +107,6 @@ namespace SP6KChannelManager.Models
             if (!Regex.IsMatch(Callsign, project.CallsignPattern))
             {
                 ErrorHandler.AddError(errorHandler, $"{project.CallsignPatternDescription}\n\n{project.CallsignPattern}");
-                return false;
-            }
-            return true;
-        }
-
-        public bool ValidateFrequency(ErrorHandler errorHandler, Project project)
-        {
-            if (Frequency == null)
-            {
-                ErrorHandler.AddError(errorHandler, "Frequency is required.");
-                return false;
-            }
-            if (Frequency < project.FrequencyMin || Frequency > project.FrequencyMax)
-            {
-                ErrorHandler.AddError(errorHandler, $"Frequency must be between {project.FrequencyMin} and {project.FrequencyMax} MHz.");
-                return false;
-            }
-            return true;
-        }
-
-        public bool ValidateOffset(ErrorHandler errorHandler, Project project)
-        {
-            if (Offset == null)
-            {
-                ErrorHandler.AddError(errorHandler, "Offset is required.");
-                return false;
-            }
-            if ((Frequency + Offset) < project.FrequencyMin || (Frequency + Offset) > project.FrequencyMax)
-            {
-                ErrorHandler.AddError(errorHandler, $"Frequency + Offset must be between {project.FrequencyMin} and {project.FrequencyMax} MHz.");
                 return false;
             }
             return true;

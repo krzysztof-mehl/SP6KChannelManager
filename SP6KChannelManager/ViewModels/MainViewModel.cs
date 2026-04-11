@@ -287,7 +287,15 @@ namespace SP6KChannelManager.ViewModels
 
         private void AddChannel()
         {
-            SelectedGroup!.ChannelDetails = new();
+            SelectedGroup!.SelectedChannel = null;
+            SelectedGroup!.ChannelDetails = new()
+            {
+                CtcssTone = CurrentProject.DefaultCtcssTone,
+                Cc = CurrentProject.DefaultCc
+            };
+            if (CurrentProject.DefaultBandwidth != null) SelectedGroup!.ChannelDetails.Bandwidth = CurrentProject.DefaultBandwidth;
+            if (CurrentProject.DefaultTone != null) SelectedGroup!.ChannelDetails.Tone = CurrentProject.DefaultTone;
+            if(CurrentProject.DefaultTimeslot != null) SelectedGroup!.ChannelDetails.Timeslot = CurrentProject.DefaultTimeslot;
             IsAddingChannel = true;
             IsAddingOrEditingChannel = true;
         }

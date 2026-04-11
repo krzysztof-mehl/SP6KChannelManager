@@ -61,26 +61,6 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="IsEnabled" Value="False"/>
         </Style>
-
-        <Style x:Key="NonResizableGridViewColumnHeader" TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                        <Border
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    Padding="{TemplateBinding Padding}">
-                            <ContentPresenter
-                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                        RecognizesAccessKey="True"
-                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
     <Window.InputBindings>
@@ -197,11 +177,11 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="Name:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Name:" HorizontalAlignment="Right"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                     <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
                     <DockPanel Grid.Row="2" Grid.Column="1" >
@@ -251,8 +231,60 @@
 
                     <GroupBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode AM (Airband)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeAm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
+                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeFm, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Bandwidths}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Bandwidth}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Tone}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
+                                <Label.Style>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Label.Style>
+                            </Label>
+                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
+                                <ComboBox.Style>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                            </ComboBox>
+                        </Grid>
                     </GroupBox>
 
                     <GroupBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
@@ -311,60 +343,8 @@
 
                     <GroupBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
-                            <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
+                            <CheckBox Content="Mode AM (Airband)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeAm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
-                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeFm, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Bandwidths}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Bandwidth}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Tone}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
-
-                            <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
-                                <Label.Style>
-                                    <Style TargetType="Label">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Label.Style>
-                            </Label>
-                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
-                                <ComboBox.Style>
-                                    <Style TargetType="ComboBox">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                                                <Setter Property="IsEnabled" Value="True"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ComboBox.Style>
-                            </ComboBox>
-                        </Grid>
                     </GroupBox>
 
                     <Separator Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2"/>
@@ -429,11 +409,17 @@
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="ToolTip" Value="{Binding Qth}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Qth}" Value="">
+                                        <Setter Property="ToolTip" Value="{x:Null}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Name" Width="110" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
                                 <GridViewColumn Header="Frequency [MHz]" Width="105">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
@@ -441,15 +427,15 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="AM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
+                                <GridViewColumn Header="FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeAm}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeFm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="C4FM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
+                                <GridViewColumn Header="C4FM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeC4Fm}"/>
@@ -457,7 +443,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="DMR" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
+                                <GridViewColumn Header="DMR" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDmr}"/>
@@ -465,7 +451,7 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="DV" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
+                                <GridViewColumn Header="DV" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDv}"/>
@@ -473,14 +459,15 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Header="FM" Width="35" HeaderContainerStyle="{StaticResource NonResizableGridViewColumnHeader}">
+                                <GridViewColumn Header="AM" Width="35">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeFm}"/>
+                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeAm}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Comment" Width="300" DisplayMemberBinding="{Binding Comment}"/>
+                                
+                                <GridViewColumn Header="Comment" Width="200" DisplayMemberBinding="{Binding Comment}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
