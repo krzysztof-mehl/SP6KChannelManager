@@ -10,9 +10,7 @@ namespace SP6KChannelManager.Models
         public string Name { get; set => SetProperty(ref field, value); } = "";
         public string Callsign { get; set => SetProperty(ref field, value); } = "";
         public decimal? Frequency { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string FrequencyString { get; set { SetProperty(ref field, value); } } = "";
         public decimal? Offset { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string OffsetString { get; set { SetProperty(ref field, value); } } = "";
         public string Comment { get; set => SetProperty(ref field, value); } = "";
 
         public bool UseLocation { get; set => SetProperty(ref field, value); } = false;
@@ -50,9 +48,7 @@ namespace SP6KChannelManager.Models
                 Name = source.Name;
                 Callsign = source.Callsign;
                 Frequency = source.Frequency;
-                FrequencyString = Frequency.ToString() ?? "";
                 Offset = source.Offset;
-                OffsetString = Offset.ToString() ?? "";
                 Comment = source.Comment;
                 UseLocation = source.UseLocation;
                 Qth = source.Qth;
@@ -78,9 +74,6 @@ namespace SP6KChannelManager.Models
         public bool Validate(ErrorHandler errorHandler, Project project, Group selectedGroup)
         {
             if (!ValidateName(errorHandler, project, selectedGroup)) { return false; }
-            if (!ValidateCallsign(errorHandler, project)) { return false; }
-            if (!ValidateFrequency(errorHandler, project)) { return false; }
-            if (!ValidateOffset(errorHandler, project)) { return false; }
             return true;
         }
 
@@ -121,23 +114,6 @@ namespace SP6KChannelManager.Models
 
         public bool ValidateFrequency(ErrorHandler errorHandler, Project project)
         {
-            if (FrequencyString == "")
-            {
-                Frequency = null;
-            }
-            else
-            {
-                try
-                {
-                    FrequencyString = FrequencyString.Trim();
-                    Frequency = decimal.Parse(FrequencyString.Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
-                }
-                catch
-                {
-                    ErrorHandler.AddError(errorHandler, "Frequency must be a number.");
-                    return false;
-                }
-            }
             if (Frequency == null)
             {
                 ErrorHandler.AddError(errorHandler, "Frequency is required.");
@@ -153,23 +129,6 @@ namespace SP6KChannelManager.Models
 
         public bool ValidateOffset(ErrorHandler errorHandler, Project project)
         {
-            if (OffsetString == "")
-            {
-                Offset = null;
-            }
-            else
-            {
-                try
-                {
-                    OffsetString = OffsetString.Trim();
-                    Offset = decimal.Parse(OffsetString.Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
-                }
-                catch
-                {
-                    ErrorHandler.AddError(errorHandler, "Offset must be a number.");
-                    return false;
-                }
-            }
             if (Offset == null)
             {
                 ErrorHandler.AddError(errorHandler, "Offset is required.");
