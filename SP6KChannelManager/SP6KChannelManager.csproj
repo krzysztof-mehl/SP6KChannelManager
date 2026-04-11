@@ -12,7 +12,7 @@
 		<Copyright>© 2026 $(Authors)</Copyright>
 		<Product>SP6K Channel Manager</Product>
 		<VersionPrefix>0.1.0</VersionPrefix>
-		<VersionSuffix>alpha.2</VersionSuffix>
+		<VersionSuffix>alpha.3</VersionSuffix>
 		<Title>$(Product)</Title>
 		<AssemblyTitle>$(Product)</AssemblyTitle>
 		<LangVersion>preview</LangVersion>
@@ -23,4 +23,13 @@
 		<DebugType>none</DebugType>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="..\LICENSE" Link="LICENSE">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <None Include="..\README.md" Link="README.md">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

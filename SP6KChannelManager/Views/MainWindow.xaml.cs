@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 
-namespace SP6KChannelManager
+namespace SP6KChannelManager.Views
 {
     public partial class MainWindow : Window
     {

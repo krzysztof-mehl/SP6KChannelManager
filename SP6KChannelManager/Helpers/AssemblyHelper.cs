@@ -26,5 +26,15 @@ namespace SP6KChannelManager.Helpers
         /// Gets the assembly version.
         /// </summary>
         internal static Version Version => Assembly.GetExecutingAssembly().GetName().Version ?? new();
+
+        /// <summary>
+        /// Gets the description defined for the assembly.
+        /// </summary>
+        internal static string Description => Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? "-";
+
+        /// <summary>
+        /// Gets the company name defined for the assembly.
+        /// </summary>
+        internal static string Company => Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? "-";
     }
 }

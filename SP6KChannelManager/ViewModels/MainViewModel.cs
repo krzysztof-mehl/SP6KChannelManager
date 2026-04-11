@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using SP6KChannelManager.Commands;
 using SP6KChannelManager.Helpers;
 using SP6KChannelManager.Models;
+using SP6KChannelManager.Views;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -397,7 +398,11 @@ namespace SP6KChannelManager.ViewModels
 
         private void ShowAbout()
         {
-            ErrorHandler.NotImplemented();
+            AboutWindow aboutWindow = new()
+            {
+                ShowInTaskbar = false
+            };
+            aboutWindow.ShowDialog();
         }
 
         private void SaveChannelChanges()
