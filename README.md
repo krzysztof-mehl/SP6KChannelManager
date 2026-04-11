@@ -1,6 +1,8 @@
 # SP6K Channel Manager
 Simple channel list management for multiple amateur radio transceivers.
 
+<img src="https://sp6k.net/SP6KChannelManager/img/SP6KChannelManager_v0.1.0-alpha.3_MainWindow.png"/>
+
 ## Table of Contents
 - [Development roadmap](#development-roadmap)
 - [Requirements](#requirements)
