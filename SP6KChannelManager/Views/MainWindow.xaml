@@ -175,29 +175,33 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Group:" HorizontalAlignment="Right"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.Groups}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="Name:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
-                    <Label Grid.Row="2" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right"/>
-                    <DockPanel Grid.Row="2" Grid.Column="1" >
-                        <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
-                    </DockPanel>
+                    <Label Grid.Row="2" Grid.Column="0" Content="Name:" HorizontalAlignment="Right" FontWeight="Bold"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
-                    <Label Grid.Row="3" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right"/>
+                    <Label Grid.Row="3" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right" FontWeight="Bold"/>
                     <DockPanel Grid.Row="3" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency, TargetNullValue=''}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </DockPanel>
 
-                    <Separator Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
+                    <Label Grid.Row="4" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right" FontWeight="Bold"/>
+                    <DockPanel Grid.Row="4" Grid.Column="1" >
+                        <Label DockPanel.Dock="Right" Content="MHz"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset, TargetNullValue=''}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                    </DockPanel>
 
-                    <GroupBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
+                    
+                    <GroupBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Location" IsChecked="{Binding SelectedGroup.ChannelDetails.UseLocation}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
@@ -220,16 +224,16 @@
                             <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Locator}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="2" Grid.Column="0" Content="Latitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Latitude, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Latitude, TargetNullValue='', StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
 
                             <Label Grid.Row="3" Grid.Column="0" Content="Longitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Longitude, StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Longitude, TargetNullValue='', StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                         </Grid>
                     </GroupBox>
 
-                    <Separator Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"/>
+                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"/>
 
-                    <GroupBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <GroupBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
@@ -287,13 +291,13 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Mode C4FM (Fusion/YSF)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeC4Fm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <GroupBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Mode DMR" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDmr}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
@@ -315,7 +319,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <GroupBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Mode DV (D-STAR)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDv}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
@@ -341,19 +345,19 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                    <GroupBox Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
                         <GroupBox.Header>
                             <CheckBox Content="Mode AM (Airband)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeAm}" Style="{StaticResource CheckBoxEnabledDuringChannelEdit}"/>
                         </GroupBox.Header>
                     </GroupBox>
 
-                    <Separator Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2"/>
+                    <Separator Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2"/>
 
-                    <GroupBox Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2" Header="Comment">
+                    <GroupBox Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" Header="Comment">
                         <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Comment}" Style="{StaticResource TextBoxEnabledDuringChannelEdit}"/>
                     </GroupBox>
 
-                    <DockPanel Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
+                    <DockPanel Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
                         <Button DockPanel.Dock="Left" Width="70" Command="{Binding SaveChannelChangesCommand}">
                             <Button.Style>
                                 <Style TargetType="Button">

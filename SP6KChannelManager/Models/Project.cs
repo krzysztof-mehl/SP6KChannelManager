@@ -15,6 +15,7 @@ namespace SP6KChannelManager.Models
         public string ChannelNamePatternDescription { get; set; } = $"Channel name must be 1 to 16 characters long, cannot start or end with a space, and can only contain printable ASCII characters.";
         public string CallsignPattern { get; set; } = @"^([A-Z0-9]{1,3}[0-9][A-Z0-9]{0,3}[A-Z])$";
         public string CallsignPatternDescription { get; set; } = "Callsign must follow the ITU amateur callsign format.";
+        public bool ConfirmSave { get; set; } = true;
 
         public string? DefaultBandwidth { get; set; } = null;
         public string? DefaultTone { get; set; } = null;

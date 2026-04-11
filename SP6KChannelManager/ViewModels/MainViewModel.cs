@@ -138,6 +138,7 @@ namespace SP6KChannelManager.ViewModels
                             {
                                 return;
                             }
+                            project.Version = AssemblyHelper.Version;
                         }
                         project.FilePath = openFileDialog.FileName;
                         CurrentProject = project;
@@ -158,16 +159,19 @@ namespace SP6KChannelManager.ViewModels
 
         private void SaveProject()
         {
-            try
+            if (CurrentProject.ConfirmSave && MessageBox.Show("Are you sure you want to save the project?", "Confirm Save Project", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                string projectJson = JsonSerializer.Serialize(CurrentProject);
-                File.WriteAllText(CurrentProject.FilePath, projectJson);
-                IsDataModified = false;
-                MessageBox.Show("Project saved successfully.", "Save Project", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while saving the project:\n{ex.Message}", "Save Project Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                try
+                {
+                    string projectJson = JsonSerializer.Serialize(CurrentProject);
+                    File.WriteAllText(CurrentProject.FilePath, projectJson);
+                    IsDataModified = false;
+                    MessageBox.Show("Project saved successfully.", "Save Project", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An error occurred while saving the project:\n{ex.Message}", "Save Project Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -181,7 +185,10 @@ namespace SP6KChannelManager.ViewModels
             if (saveFileDialog.ShowDialog() == true)
             {
                 CurrentProject.FilePath = saveFileDialog.FileName;
+                bool confirmSave = CurrentProject.ConfirmSave;
+                CurrentProject.ConfirmSave = false;
                 SaveProject();
+                CurrentProject.ConfirmSave = confirmSave;
             }
         }
 
@@ -335,6 +342,14 @@ namespace SP6KChannelManager.ViewModels
             SelectedGroup!.ChannelDetails = clonedChannel;
             IsAddingChannel = true;
             IsAddingOrEditingChannel = true;
+        }
+
+        private void MoveChannel(Group newGroup)
+        {
+            newGroup.Channels.Add(new(SelectedGroup!.SelectedChannel!));
+            SelectedGroup!.Channels.Remove(SelectedGroup.SelectedChannel!);
+            SelectedGroup = newGroup;
+            SelectedGroup.SelectedChannel = SelectedGroup.Channels.Last();
         }
 
         private void SortChannelByName()
