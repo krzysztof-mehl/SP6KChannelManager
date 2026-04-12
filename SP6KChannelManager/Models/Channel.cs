@@ -26,7 +26,7 @@ namespace SP6KChannelManager.Models
 
         public bool UseModeDmr { get; set => SetProperty(ref field, value); } = false;
         public string Timeslot { get; set => SetProperty(ref field, value); } = "";
-        public int? Cc { get; set => SetProperty(ref field, value); } = null;
+        public int? ColorCode { get; set => SetProperty(ref field, value); } = null;
 
         public bool UseModeDv { get; set => SetProperty(ref field, value); } = false;
         public string Ur { get; set => SetProperty(ref field, value); } = "";
@@ -60,7 +60,7 @@ namespace SP6KChannelManager.Models
                 UseModeC4Fm = source.UseModeC4Fm;
                 UseModeDmr = source.UseModeDmr;
                 Timeslot = source.Timeslot;
-                Cc = source.Cc;
+                ColorCode = source.ColorCode;
                 UseModeDv = source.UseModeDv;
                 Ur = source.Ur;
                 Rpt1 = source.Rpt1;

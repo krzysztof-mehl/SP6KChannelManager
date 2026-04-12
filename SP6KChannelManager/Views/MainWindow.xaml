@@ -282,7 +282,7 @@
                                     </Style>
                                 </Label.Style>
                             </Label>
-                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
+                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CurrentProject.CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
                                 <ComboBox.Style>
                                     <Style TargetType="ComboBox">
                                         <Setter Property="Visibility" Value="Visible"/>
@@ -328,7 +328,7 @@
                             <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Timeslots}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Timeslot}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
 
                             <Label Grid.Row="1" Grid.Column="0" Content="Color Code:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding ColorCodes}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Cc}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding ColorCodes}" SelectedValue="{Binding SelectedGroup.ChannelDetails.ColorCode}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
                         </Grid>
                     </GroupBox>
 
