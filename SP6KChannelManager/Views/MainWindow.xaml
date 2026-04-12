@@ -203,13 +203,13 @@
                     <Label Grid.Row="3" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right" FontWeight="Bold"/>
                     <DockPanel Grid.Row="3" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Frequency, TargetNullValue=''}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.FrequencyString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
                     </DockPanel>
 
                     <Label Grid.Row="4" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right" FontWeight="Bold"/>
                     <DockPanel Grid.Row="4" Grid.Column="1" >
                         <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Offset, TargetNullValue=''}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
+                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.OffsetString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
                     </DockPanel>
 
                     <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
@@ -237,10 +237,10 @@
                             <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Locator}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
 
                             <Label Grid.Row="2" Grid.Column="0" Content="Latitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Latitude, TargetNullValue='', StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.LatitudeString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
 
                             <Label Grid.Row="3" Grid.Column="0" Content="Longitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Longitude, TargetNullValue='', StringFormat={}{0:0.000000}}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.LongitudeString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
                         </Grid>
                     </GroupBox>
 

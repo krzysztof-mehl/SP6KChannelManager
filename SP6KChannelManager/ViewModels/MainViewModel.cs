@@ -427,10 +427,10 @@ namespace SP6KChannelManager.ViewModels
                         SelectedGroup.Channels[index] = new(SelectedGroup.ChannelDetails!);
                         SelectedGroup.SelectedChannel = SelectedGroup.Channels[index];
                         IsDataModified = true;
+                        IsAddingChannel = false;
+                        IsAddingOrEditingChannel = false;
                     }
                 }
-                IsAddingChannel = false;
-                IsAddingOrEditingChannel = false;
             }
             else
             {
