@@ -10,18 +10,18 @@ namespace SP6KChannelManager.Models
         public string Name { get; set => SetProperty(ref field, value); } = "";
         public string Callsign { get; set { if (Name == "") Name = value; SetProperty(ref field, value); } } = "";
         public decimal? Frequency { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string FrequencyString { get; set {Frequency = str2decOrNull(value); field = (Frequency != null) ? Frequency.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value;}} = "";
+        [JsonIgnore] public string FrequencyString { get; set { Frequency = Str2decOrNull(value); field = (Frequency != null) ? Frequency.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
         public decimal? Offset { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string OffsetString { get; set { Offset = str2decOrNull(value); field = (Offset != null) ? Offset.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
+        [JsonIgnore] public string OffsetString { get; set { Offset = Str2decOrNull(value); field = (Offset != null) ? Offset.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
         public string Comment { get; set => SetProperty(ref field, value); } = "";
 
         public bool UseLocation { get; set => SetProperty(ref field, value); } = false;
         public string Qth { get; set => SetProperty(ref field, value); } = "";
         public string Locator { get; set => SetProperty(ref field, value); } = "";
         public decimal? Latitude { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string LatitudeString { get; set { Latitude = str2decOrNull(value); field = (Latitude != null) ? Latitude.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
+        [JsonIgnore] public string LatitudeString { get; set { Latitude = Str2decOrNull(value); field = (Latitude != null) ? Latitude.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
         public decimal? Longitude { get; set => SetProperty(ref field, value); } = null;
-        [JsonIgnore] public string LongitudeString { get; set { Longitude = str2decOrNull(value); field = (Longitude != null) ? Longitude.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
+        [JsonIgnore] public string LongitudeString { get; set { Longitude = Str2decOrNull(value); field = (Longitude != null) ? Longitude.Value.ToString("0.000 000", CultureInfo.InvariantCulture) : value; } } = "";
         public bool UseModeFm { get; set => SetProperty(ref field, value); } = false;
         public string Bandwidth { get; set => SetProperty(ref field, value); } = "";
         public string Tone { get; set => SetProperty(ref field, value); } = "";
@@ -61,7 +61,7 @@ namespace SP6KChannelManager.Models
                 Latitude = source.Latitude;
                 LatitudeString = source.Latitude.ToString() ?? "";
                 Longitude = source.Longitude;
-                LongitudeString = source.Longitude.ToString() ?? "";    
+                LongitudeString = source.Longitude.ToString() ?? "";
                 UseModeFm = source.UseModeFm;
                 Bandwidth = source.Bandwidth;
                 Tone = source.Tone;
@@ -78,7 +78,7 @@ namespace SP6KChannelManager.Models
             }
         }
 
-        private decimal? str2decOrNull(string str)
+        private static decimal? Str2decOrNull(string str)
         {
             if (str == "") return null;
             string normalized = str.Replace(" ", "").Replace(',', '.');

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SP6KChannelManager.ViewModels"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="800"
-        Title="{Binding WindowTitle}" Height="600" Width="1100">
+        Title="{Binding WindowTitle}" Height="700" Width="1100">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -282,7 +282,7 @@
                                     </Style>
                                 </Label.Style>
                             </Label>
-                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CurrentProject.CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
+                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
                                 <ComboBox.Style>
                                     <Style TargetType="ComboBox">
                                         <Setter Property="Visibility" Value="Visible"/>
