@@ -101,6 +101,8 @@ namespace SP6KChannelManager.ViewModels
             ShowAboutCommand = new(ShowAbout);
             SaveChannelChangesCommand = new(SaveChannelChanges, () => IsAddingOrEditingChannel);
             DiscardChannelChangesCommand = new(DiscardChannelChanges);
+
+            Status = "Ready";
         }
 
         private void NewProject()
@@ -146,6 +148,7 @@ namespace SP6KChannelManager.ViewModels
                         CurrentProject = project;
                         IsDataModified = false;
                         OnPropertyChanged(nameof(ChannelsCount));
+                        OnPropertyChanged(nameof(WindowTitle));
                     }
                     else
                     {
@@ -304,7 +307,7 @@ namespace SP6KChannelManager.ViewModels
             };
             if (CurrentProject.DefaultBandwidth != null) SelectedGroup!.ChannelDetails.Bandwidth = CurrentProject.DefaultBandwidth;
             if (CurrentProject.DefaultTone != null) SelectedGroup!.ChannelDetails.Tone = CurrentProject.DefaultTone;
-            if(CurrentProject.DefaultTimeslot != null) SelectedGroup!.ChannelDetails.Timeslot = CurrentProject.DefaultTimeslot;
+            if (CurrentProject.DefaultTimeslot != null) SelectedGroup!.ChannelDetails.Timeslot = CurrentProject.DefaultTimeslot;
             IsAddingChannel = true;
             IsAddingOrEditingChannel = true;
         }
