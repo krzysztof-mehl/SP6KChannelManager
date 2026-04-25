@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SP6KChannelManager.ViewModels"
+        d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="800"
         Title="{Binding WindowTitle}" Height="700" Width="1100">
@@ -11,63 +12,7 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <Style x:Key="GroupBoxDisabledDuringChannelEditOrAdding" TargetType="GroupBox">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                    <Setter Property="IsEnabled" Value="False"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="TextBoxEnabledDuringChannelEditOrAdding" TargetType="TextBox">
-            <!-- inactive/read-only look -->
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                    <!-- active/edit look -->
-                    <Setter Property="IsReadOnly" Value="False"/>
-                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="CheckBoxEnabledDuringChannelEditOrAdding" TargetType="CheckBox">
-            <Setter Property="IsEnabled" Value="False"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                    <Setter Property="IsEnabled" Value="True"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ComboBoxEnabledDuringChannelEdit" TargetType="ComboBox">
-            <Setter Property="IsEnabled" Value="False"/>
-            <Style.Triggers>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding IsAddingOrEditingChannel}" Value="True"/>
-                        <Condition Binding="{Binding IsAddingChannel}" Value="False"/>
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="IsEnabled" Value="True"/>
-                </MultiDataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ComboBoxEnabledDuringChannelEditOrAdding" TargetType="ComboBox">
-            <Setter Property="IsEnabled" Value="False"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                    <Setter Property="IsEnabled" Value="True"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="CenteredCellCheckBoxStyle" TargetType="CheckBox">
+        <Style x:Key="CenteredCellCheckBox" TargetType="CheckBox">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0"/>
@@ -89,6 +34,7 @@
     </Window.InputBindings>
 
     <DockPanel>
+        <!-- Top Menu -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Project">
                 <MenuItem Header="New" InputGestureText="" Command="{Binding NewProjectCommand}"/>
@@ -116,6 +62,7 @@
                 <MenuItem Header="Clone" Command="{Binding CloneChannelCommand}"/>
                 <Separator/>
                 <MenuItem Header="Sort by Name" Command="{Binding SortChannelByNameCommand}"/>
+                <MenuItem Header="Sort by Callsign" Command="{Binding SortChannelByCallsignCommand}"/>
                 <MenuItem Header="Sort by Frequency" Command="{Binding SortChannelByFrequencyCommand}"/>
                 <Separator/>
                 <MenuItem Header="Move Up" InputGestureText="Ctrl+U" Command="{Binding MoveUpChannelCommand}"/>
@@ -125,371 +72,452 @@
                 <MenuItem Header="About" Command="{Binding ShowAboutCommand}"/>
             </MenuItem>
         </Menu>
-
+        <!-- Bottom Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ChannelsCount, StringFormat={}{0} channel(s) in}"/>
-                    <TextBlock Text="{Binding CurrentProject.Groups.Count, StringFormat={} {0} group(s)}"/>
-                </StackPanel>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding SelectedGroup.Channels.Count, FallbackValue='No group selected', StringFormat={}{0} channel(s) in group}"/>
-                </StackPanel>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <TextBlock Text="{Binding Status}"/>
+                <TextBlock/>
             </StatusBarItem>
         </StatusBar>
-
-        <GroupBox DockPanel.Dock="Left" Width="200" Header="Groups" Margin="5" Style="{StaticResource GroupBoxDisabledDuringChannelEditOrAdding}">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top">
-                    <DockPanel LastChildFill="False">
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                            <Button Content="➕" Width="25" Height="25" Margin="5,5,2,5" ToolTip="Add group" Command="{Binding AddGroupCommand}"/>
-                            <Button Content="➖" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Remove group" Command="{Binding RemoveGroupCommand}"/>
-                            <Button Content="✏️" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Edit group" Command="{Binding EditGroupCommand}"/>
-                            <Button Content="🗐" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Clone group" Command="{Binding CloneGroupCommand}"/>
-                        </StackPanel>
-                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                            <Button Content="⬆" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Move group up" Command="{Binding MoveUpGroupCommand}"/>
-                            <Button Content="⬇" Width="25" Height="25" Margin="2,5,5,5" ToolTip="Move group down" Command="{Binding MoveDownGroupCommand}"/>
-                        </StackPanel>
-                    </DockPanel>
-                </StackPanel>
-                <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.Groups}" SelectedItem="{Binding SelectedGroup}"/>
-            </DockPanel>
-        </GroupBox>
-
-        <ScrollViewer DockPanel.Dock="Right" Width="250" Margin="5" VerticalScrollBarVisibility="Auto" d:Visibility="Visible" Visibility="{Binding SelectedGroup.IsChannelDetailsVisible, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
-            <GroupBox Header="Channel details">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <Label Grid.Row="0" Grid.Column="0" Content="Group:" HorizontalAlignment="Right"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.Groups}" SelectedValue="{Binding SelectedGroup, Mode=OneWay}" SelectedItem="{Binding SelectedTargetGroup}" Style="{StaticResource ComboBoxEnabledDuringChannelEdit}"/>
-
-                    <Label Grid.Row="1" Grid.Column="0" Content="Callsign:" HorizontalAlignment="Right"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Callsign}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                    <Label Grid.Row="2" Grid.Column="0" Content="Name:" HorizontalAlignment="Right" FontWeight="Bold"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Name}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                    <Label Grid.Row="3" Grid.Column="0" Content="Frequency:" HorizontalAlignment="Right" FontWeight="Bold"/>
-                    <DockPanel Grid.Row="3" Grid.Column="1" >
-                        <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.FrequencyString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-                    </DockPanel>
-
-                    <Label Grid.Row="4" Grid.Column="0" Content="Offset:" HorizontalAlignment="Right" FontWeight="Bold"/>
-                    <DockPanel Grid.Row="4" Grid.Column="1" >
-                        <Label DockPanel.Dock="Right" Content="MHz"/>
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.OffsetString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-                    </DockPanel>
-
-                    <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
-                    
-                    <GroupBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Location" IsChecked="{Binding SelectedGroup.ChannelDetails.UseLocation}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseLocation, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Grid.Column="0" Content="QTH:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Qth}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Locator:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Locator}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="2" Grid.Column="0" Content="Latitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.LatitudeString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="3" Grid.Column="0" Content="Longitude:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.LongitudeString}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <Separator Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"/>
-
-                    <GroupBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Mode FM" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeFm}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeFm, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Bandwidths}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Bandwidth}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" SelectedIndex="{Binding ToneIndex}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Tone}" ItemsSource="{Binding Tones}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="2" Grid.Column="0" Content="CTCCS Tone:" HorizontalAlignment="Right">
-                                <Label.Style>
-                                    <Style TargetType="Label">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Label.Style>
-                            </Label>
-                            <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CtcssTones}" SelectedValue="{Binding SelectedGroup.ChannelDetails.CtcssTone}">
-                                <ComboBox.Style>
-                                    <Style TargetType="ComboBox">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="-1">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding ToneIndex}" Value="0">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                                                <Setter Property="IsEnabled" Value="True"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ComboBox.Style>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-
-                    <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Mode C4FM (Fusion/YSF)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeC4Fm}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                    </GroupBox>
-
-                    <GroupBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Mode DMR" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDmr}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeDmr, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Grid.Column="0" Content="Timeslot:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Timeslots}" SelectedValue="{Binding SelectedGroup.ChannelDetails.Timeslot}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Color Code:" HorizontalAlignment="Right"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding ColorCodes}" SelectedValue="{Binding SelectedGroup.ChannelDetails.ColorCode}" Style="{StaticResource ComboBoxEnabledDuringChannelEditOrAdding}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <GroupBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Mode DV (D-STAR)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeDv}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                        <Grid Visibility="{Binding SelectedGroup.ChannelDetails.UseModeDv, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Row="0" Grid.Column="0" Content="UR:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Ur}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="RPT1:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Rpt1}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-
-                            <Label Grid.Row="2" Grid.Column="0" Content="RPT2:" HorizontalAlignment="Right"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" MaxLength="8" VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Rpt2}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <GroupBox Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                        <GroupBox.Header>
-                            <CheckBox Content="Mode AM (Airband)" IsChecked="{Binding SelectedGroup.ChannelDetails.UseModeAm}" Style="{StaticResource CheckBoxEnabledDuringChannelEditOrAdding}"/>
-                        </GroupBox.Header>
-                    </GroupBox>
-
-                    <Separator Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="2"/>
-
-                    <GroupBox Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" Header="Comment">
-                        <TextBox VerticalAlignment="Center" Text="{Binding SelectedGroup.ChannelDetails.Comment}" Style="{StaticResource TextBoxEnabledDuringChannelEditOrAdding}"/>
-                    </GroupBox>
-
-                    <DockPanel Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2" LastChildFill="False" Margin="5">
-                        <Button DockPanel.Dock="Left" Width="70" Command="{Binding SaveChannelChangesCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Content" Value="✓ Save"/>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsAddingChannel}" Value="True">
-                                            <Setter Property="Content" Value="➕ Add"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Button DockPanel.Dock="Right" Width="70" Command="{Binding DiscardChannelChangesCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Content" Value="✕ Close"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="True">
-                                            <Setter Property="Content" Value="✕ Cancel"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </DockPanel>
-                </Grid>
+        <!-- Main Content -->
+        <DockPanel>
+            <!-- Groups Section -->
+            <GroupBox DockPanel.Dock="Left" Width="200" Header="Groups" Margin="5">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
+                        <DockPanel LastChildFill="False">
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                <Button Content="➕" Width="25" Height="25" Margin="5,5,2,5" ToolTip="Add group" Command="{Binding AddGroupCommand}"/>
+                                <Button Content="➖" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Remove group" Command="{Binding RemoveGroupCommand}"/>
+                                <Button Content="✏️" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Edit group" Command="{Binding EditGroupCommand}"/>
+                                <Button Content="🗐" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Clone group" Command="{Binding CloneGroupCommand}"/>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="⬆" Width="25" Height="25" Margin="2,5,2,5" ToolTip="Move group up" Command="{Binding MoveUpGroupCommand}"/>
+                                <Button Content="⬇" Width="25" Height="25" Margin="2,5,5,5" ToolTip="Move group down" Command="{Binding MoveDownGroupCommand}"/>
+                            </StackPanel>
+                        </DockPanel>
+                    </StackPanel>
+                    <ListBox Margin="5" DisplayMemberPath="Name"/>
+                </DockPanel>
             </GroupBox>
-        </ScrollViewer>
-
-        <GroupBox DockPanel.Dock="Left" Header="Channels" Margin="5" Style="{StaticResource GroupBoxDisabledDuringChannelEditOrAdding}">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top">
-                    <DockPanel LastChildFill="False">
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                            <Button Content="➕" Width="25" Height="25" Margin="5" ToolTip="Add channel" Command="{Binding AddChannelCommand}"/>
-                            <Button Content="➖" Width="25" Height="25" Margin="5" ToolTip="Remove channel" Command="{Binding RemoveChannelCommand}"/>
-                            <Button Content="✏️" Width="25" Height="25" Margin="5" ToolTip="Edit channel" Command="{Binding EditChannelCommand}"/>
-                            <Button Content="🗐" Width="25" Height="25" Margin="5" ToolTip="Clone channel" Command="{Binding CloneChannelCommand}"/>
+            <!-- Channel details Section -->
+            <GroupBox DockPanel.Dock="Bottom" Header="Channel details" Margin="5,0,5,5" d:Visibility="Visible">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+                        <StackPanel>
+                            <!-- Edit button -->
+                            <Button Width="70" Margin="5" Content="✏️ Edit" Command="{Binding EditChannelCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <!-- Clone button -->
+                            <Button Width="70" Margin="5" Content="🗐 Clone" Command="{Binding CloneChannelCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <!-- Save/Add button -->
+                            <Button Width="70" Margin="5" Command="{Binding SaveChannelCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="✓ Save"/>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsAddingNewChannel}" Value="True">
+                                                <Setter Property="Content" Value="➕ Add"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsAddingOrEditingChannel}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <!-- Close/Cancel button -->
+                            <Button Width="70" Margin="5" Command="{Binding CloseChannelCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="✕ Close"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsAddingNewChannel}" Value="True">
+                                                <Setter Property="Content" Value="✕ Cancel"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </StackPanel>
-                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                            <Button Content="⬆" Width="25" Height="25" Margin="5" ToolTip="Move channel up" Command="{Binding MoveUpChannelCommand}"/>
-                            <Button Content="⬇" Width="25" Height="25" Margin="5" ToolTip="Move channel down" Command="{Binding MoveDownChannelCommand}"/>
-                        </StackPanel>
-                    </DockPanel>
-                </StackPanel>
+                    </StackPanel>
 
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                    <ListView Margin="5" SelectionMode="Single" ItemsSource="{Binding SelectedGroup.Channels}" SelectedItem="{Binding SelectedGroup.SelectedChannel}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="ToolTip" Value="{Binding Qth}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Qth}" Value="">
-                                        <Setter Property="ToolTip" Value="{x:Null}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="Frequency [MHz]" Width="105">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Frequency, StringFormat={}{0:0.000 000}}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="FM" Width="35">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeFm}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                    <TabControl Margin="5,5,5,5" Height="142">
+                        <!-- Overview tab -->
+                        <TabItem Header="Overview">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="21.62"/>
+                                    <ColumnDefinition Width="128.38"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="Name:" HorizontalAlignment="Left" Grid.ColumnSpan="2" Margin="2,0,0,26" Grid.RowSpan="2"/>
+                                <TextBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="140" Grid.ColumnSpan="2"/>
+                                <Label Grid.Row="1" Content="Group:" HorizontalAlignment="Center" Margin="0,0,0,26" Grid.RowSpan="2"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="140" Grid.ColumnSpan="2"/>
+                                <Label Grid.Row="2" Content="Status:" HorizontalAlignment="Center" Margin="0,0,0,26" Grid.RowSpan="2"/>
+                                <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="140" ItemsSource="{Binding ChannelStatuses}" Grid.ColumnSpan="2"/>
+                                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,0,67,0">
+                                    <Label Content="Last update:"/>
+                                    <Label d:Content="Last update" FontStyle="Italic"/>
+                                </StackPanel>
+                                <Label Grid.Row="0" Grid.Column="3" Content="Callsign:" HorizontalAlignment="Left" Margin="13,0,0,26" Grid.RowSpan="2"/>
+                                <TextBox Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Width="110"/>
+                                <Label Grid.Row="1" Grid.Column="3" Content="Frequency:" HorizontalAlignment="Center" Margin="0,0,0,26" Grid.RowSpan="2"/>
+                                <DockPanel Grid.Row="1" Grid.Column="4" Width="110" HorizontalAlignment="Center" Margin="0,0,0,26" Grid.RowSpan="2">
+                                    <Label DockPanel.Dock="Right" Content="MHz"/>
+                                    <TextBox VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <Label Grid.Row="2" Grid.Column="3" Content="Offset:" HorizontalAlignment="Left" Margin="22,0,0,26" Grid.RowSpan="2"/>
+                                <DockPanel Grid.Row="2" Grid.Column="4" Width="110" HorizontalAlignment="Center" Margin="0,0,0,26" Grid.RowSpan="2">
+                                    <Label DockPanel.Dock="Right" Content="MHz"/>
+                                    <TextBox VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <GroupBox Grid.Row="0" Grid.Column="5" Grid.RowSpan="4" Margin="0,-10,0,0" HorizontalAlignment="Right" Width="350">
+                                    <GroupBox.Header>
+                                        <Label Content="Comment"/>
+                                    </GroupBox.Header>
+                                    <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                </GroupBox>
+                            </Grid>
+                        </TabItem>
 
-                                <GridViewColumn Header="C4FM" Width="35">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeC4Fm}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                        <!-- Location tab -->
+                        <TabItem Header="Location">
+                            <GroupBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Use location"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="Latitude:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="72" Margin="0,0,10,0"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="Longitude:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="72"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Content="Locator:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="72"/>
+                                    <Label Grid.Row="0" Grid.Column="2" Content="QTH:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Width="180"/>
+                                    <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <Label Content="Last update:"/>
+                                        <Label d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="4" Grid.RowSpan="3" Margin="0,-10,0,0" HorizontalAlignment="Right" Width="350">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
 
-                                <GridViewColumn Header="DMR" Width="35">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDmr}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                        <!-- Mode FM tab -->
+                        <TabItem Header="FM">
+                            <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Enable FM mode"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="Bandwidth:" HorizontalAlignment="Right"/>
+                                    <CheckBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="72" Content="Narrow"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="Tone:" HorizontalAlignment="Right"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                        <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="72" ItemsSource="{Binding FmTones}"/>
+                                        <Label Grid.Row="2" Grid.Column="0" Content="Tone Code:" HorizontalAlignment="Right"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="35"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <Label Content="Last update:"/>
+                                        <Label d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Margin="0,-10,0,0" HorizontalAlignment="Right" Width="350">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
 
-                                <GridViewColumn Header="DV" Width="35">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeDv}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                        <!-- Mode DMR tab -->
+                        <TabItem Header="DMR">
+                            <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Enable DMR mode"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="Timeslot:" HorizontalAlignment="Right"/>
+                                    <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="82" ItemsSource="{Binding DmrTimeslots}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="Color Code:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="20"/>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <Label Content="Last update:"/>
+                                        <Label Grid.Row="3" Grid.Column="2" d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Margin="0,-10,0,0" HorizontalAlignment="Right" Width="350">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
 
-                                <GridViewColumn Header="AM" Width="35">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Style="{StaticResource CenteredCellCheckBoxStyle}" IsChecked="{Binding UseModeAm}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                
-                                <GridViewColumn Header="Comment" Width="200" DisplayMemberBinding="{Binding Comment}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </ScrollViewer>
-            </DockPanel>
-        </GroupBox>
+                        <!-- Mode DV tab -->
+                        <TabItem Header="DV">
+                            <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Enable DV (D-STAR) mode"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="UR:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="90" ToolTip="UR = Your" Margin="0,0,10,0"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="RPT1:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="90" ToolTip="RPT1 = Repeater Callsign"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Content="RPT2:" HorizontalAlignment="Right"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="90" ToolTip="RPT2 = Gateway Callsign"/>
+                                    <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <Label Content="Last update:"/>
+                                        <Label Grid.Row="3" Grid.Column="2" d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="3" Grid.RowSpan="3" Margin="0,-10,0,0" HorizontalAlignment="Right" Width="350">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
+
+                        <!-- Mode C4FM tab -->
+                        <TabItem Header="C4FM">
+                            <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Enable C4FM (Fusion/YSF) mode"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Width="350" Content="No configuration options available." HorizontalContentAlignment="Center" VerticalAlignment="Bottom"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                        <Label Content="Last update:"/>
+                                        <Label Grid.Row="3" Grid.Column="2" d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Margin="0,-10,0,0" Width="350" HorizontalAlignment="Right">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="44.92"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
+
+                        <!-- Mode Airband tab -->
+                        <TabItem Header="Airband">
+                            <GroupBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+                                <GroupBox.Header>
+                                    <CheckBox Content="Enable Airband mode"/>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Width="350" Content="No configuration options available." HorizontalContentAlignment="Center" VerticalAlignment="Bottom"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                        <Label Content="Last update:"/>
+                                        <Label Grid.Row="3" Grid.Column="2" d:Content="Last update" FontStyle="Italic"/>
+                                    </StackPanel>
+                                    <GroupBox Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Margin="0,-10,0,0" Width="350" HorizontalAlignment="Right">
+                                        <GroupBox.Header>
+                                            <Label Content="Comment"/>
+                                        </GroupBox.Header>
+                                        <TextBox Margin="5" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="44.92"/>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </GroupBox>
+            <!-- Channels Section -->
+            <GroupBox Header="Channels" Margin="5">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
+                        <DockPanel LastChildFill="False">
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                <Button Content="➕" Width="25" Height="25" Margin="5" ToolTip="Add channel" Command="{Binding AddChannelCommand}"/>
+                                <Button Content="➖" Width="25" Height="25" Margin="5" ToolTip="Remove channel" Command="{Binding RemoveChannelCommand}"/>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="⬆" Width="25" Height="25" Margin="5" ToolTip="Move channel up" Command="{Binding MoveUpChannelCommand}"/>
+                                <Button Content="⬇" Width="25" Height="25" Margin="5" ToolTip="Move channel down" Command="{Binding MoveDownChannelCommand}"/>
+                            </StackPanel>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                        <ListView Margin="5" SelectionMode="Single">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="ToolTip" Value="{Binding Qth}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Qth}" Value="">
+                                            <Setter Property="ToolTip" Value="{x:Null}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Callsign" Width="80" DisplayMemberBinding="{Binding Callsign}"/>
+                                    <GridViewColumn Header="Frequency [MHz]" Width="105">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock HorizontalAlignment="Center" Text="{Binding Frequency}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="FM" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource CenteredCellCheckBox}" IsChecked="{Binding UseModeFm}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="DMR" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource CenteredCellCheckBox}" IsChecked="{Binding UseModeDmr}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="DV" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource CenteredCellCheckBox}" IsChecked="{Binding UseModeDv}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="C4FM" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource CenteredCellCheckBox}" IsChecked="{Binding UseModeC4Fm}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="AM" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Style="{StaticResource CenteredCellCheckBox}" IsChecked="{Binding UseModeAm}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+
+                                    <GridViewColumn Header="QTH" Width="150" DisplayMemberBinding="{Binding Qth}"/>
+
+                                    <GridViewColumn Header="Comment" Width="200" DisplayMemberBinding="{Binding Comment}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </ScrollViewer>
+                </DockPanel>
+            </GroupBox>
+        </DockPanel>
     </DockPanel>
 </Window>
