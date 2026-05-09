@@ -34,6 +34,7 @@
     </Window.InputBindings>
 
     <DockPanel>
+        
         <!-- Top Menu -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Project">
@@ -72,14 +73,17 @@
                 <MenuItem Header="About" Command="{Binding ShowAboutCommand}"/>
             </MenuItem>
         </Menu>
+        
         <!-- Bottom Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock/>
             </StatusBarItem>
         </StatusBar>
+        
         <!-- Main Content -->
         <DockPanel>
+            
             <!-- Groups Section -->
             <GroupBox DockPanel.Dock="Left" Width="200" Header="Groups" Margin="5">
                 <DockPanel>
@@ -97,14 +101,16 @@
                             </StackPanel>
                         </DockPanel>
                     </StackPanel>
-                    <ListBox Margin="5" DisplayMemberPath="Name"/>
+                    <ListBox Margin="5" DisplayMemberPath="Name" ItemsSource="{Binding CurrentProject.Groups}" SelectedItem="{Binding SelectedGroup}"/>
                 </DockPanel>
             </GroupBox>
+            
             <!-- Channel details Section -->
-            <GroupBox DockPanel.Dock="Bottom" Header="Channel details" Margin="5,0,5,5" d:Visibility="Visible">
+            <GroupBox DockPanel.Dock="Bottom" Header="Channel details" Margin="5,0,5,5" Visibility="{Binding IsChannelDetailsVisible , Converter={StaticResource BoolToVisibilityConverter}}">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
                         <StackPanel>
+                            
                             <!-- Edit button -->
                             <Button Width="70" Margin="5" Content="✏️ Edit" Command="{Binding EditChannelCommand}">
                                 <Button.Style>
@@ -118,6 +124,7 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
+                            
                             <!-- Clone button -->
                             <Button Width="70" Margin="5" Content="🗐 Clone" Command="{Binding CloneChannelCommand}">
                                 <Button.Style>
@@ -131,6 +138,7 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
+                            
                             <!-- Save/Add button -->
                             <Button Width="70" Margin="5" Command="{Binding SaveChannelCommand}">
                                 <Button.Style>
@@ -148,6 +156,7 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
+                            
                             <!-- Close/Cancel button -->
                             <Button Width="70" Margin="5" Command="{Binding CloseChannelCommand}">
                                 <Button.Style>
@@ -165,6 +174,7 @@
                     </StackPanel>
 
                     <TabControl Margin="5,5,5,5" Height="142">
+                        
                         <!-- Overview tab -->
                         <TabItem Header="Overview">
                             <Grid Margin="5">
@@ -428,6 +438,7 @@
                     </TabControl>
                 </DockPanel>
             </GroupBox>
+            
             <!-- Channels Section -->
             <GroupBox Header="Channels" Margin="5">
                 <DockPanel>
